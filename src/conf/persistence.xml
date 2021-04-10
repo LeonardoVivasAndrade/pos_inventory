@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="Inventory_posPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>DTO.Cajatipo</class>
+    <class>DTO.Cajachica</class>
+    <class>DTO.Dcompra</class>
+    <class>DTO.Usuario</class>
+    <class>DTO.Proveedor</class>
+    <class>DTO.Dventa</class>
+    <class>DTO.Compra</class>
+    <class>DTO.Departamento</class>
+    <class>DTO.Cliente</class>
+    <class>DTO.Stock</class>
+    <class>DTO.Venta</class>
+    <class>DTO.Inventario</class>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/db_sci?zeroDateTimeBehavior=convertToNull"/>
+      <property name="javax.persistence.jdbc.user" value="root"/>
+      <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+      <property name="javax.persistence.jdbc.password" value="admin1234"/>
+    </properties>
+  </persistence-unit>
+</persistence>
