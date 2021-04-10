@@ -100,9 +100,13 @@ public class CtrCompras extends HttpServlet {
             for (Dcompra dcompra : listDc) {
                 dcompraDao.create(dcompra);
                 Stock stock = stockDao.findStock(dcompra.getDcoIdinventario().getInId());
-                float cantidadActual = stock.getStCantidad();
-                float cantidadCompra = dcompra.getDcoCantidad();
-                stock.setStCantidad(cantidadActual + cantidadCompra);
+                float cantidadActual = 0;
+                if( stock != null){
+                    cantidadActual = stock.getStCantidad();
+                    float cantidadCompra = dcompra.getDcoCantidad();
+                    stock.setStCantidad(cantidadActual + cantidadCompra);
+                }              
+                
                 stockDao.edit(stock);
             }
 

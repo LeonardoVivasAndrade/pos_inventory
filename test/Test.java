@@ -42,7 +42,9 @@ public class Test {
 
 //        EntityManagerFactory emf = new Conexion().getBd();
 //        DventaJpaController dventaDao = new DventaJpaController(emf);
-//        List<Dventa> dventaList = dventaDao.getBestProducts();
+//        Object dventaList = dventaDao.getBestProducts2();
+//        List<Object[]> a = (List<Object[]>) dventaList;
+//        System.out.println(a.get(0)[0]);
 //        System.out.println(dventaList.get(1).getDveCantidad());
 
 //        CtrVentas ctrventas = new CtrVentas();
@@ -54,8 +56,8 @@ public class Test {
 
         
         
-        DecimalFormat df = new DecimalFormat("###,###");
-        System.out.println(df.format(3.855));
+//        DecimalFormat df = new DecimalFormat("###,###");
+//        System.out.println(df.format(3.855));
 
 //LocalDate miercoles = lunes.with(DayOfWeek.WEDNESDAY);
 //LocalDate jueves = lunes.plusDays(1);
@@ -67,6 +69,7 @@ public class Test {
 //        Double sumaVentaTotal = ventaDao.getSumVentaTotal();
 //        System.out.println();
         // TODO code application logic here
+        System.out.println(Util.doubleFormat(5000000.50));
     }
 
 }

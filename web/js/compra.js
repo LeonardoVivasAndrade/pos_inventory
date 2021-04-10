@@ -49,7 +49,7 @@ function loadProductosCompra() {
 
         tabla.row.add([
             p.descripcion,
-            p.costo.toLocaleString("en-US"),
+            p.costo.toLocaleString("de-DE"),
             btnCantidad,
             boton
         ]).draw(false);

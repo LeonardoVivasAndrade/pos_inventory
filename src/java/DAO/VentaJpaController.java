@@ -227,17 +227,17 @@ public class VentaJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The venta with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            List<Dventa> dventaListOrphanCheck = venta.getDventaList();
-            for (Dventa dventaListOrphanCheckDventa : dventaListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Venta (" + venta + ") cannot be destroyed since the Dventa " + dventaListOrphanCheckDventa + " in its dventaList field has a non-nullable dveIdventa field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
+//            List<String> illegalOrphanMessages = null;
+//            List<Dventa> dventaListOrphanCheck = venta.getDventaList();
+//            for (Dventa dventaListOrphanCheckDventa : dventaListOrphanCheck) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Venta (" + venta + ") cannot be destroyed since the Dventa " + dventaListOrphanCheckDventa + " in its dventaList field has a non-nullable dveIdventa field.");
+//            }
+//            if (illegalOrphanMessages != null) {
+//                throw new IllegalOrphanException(illegalOrphanMessages);
+//            }
             Cliente veIdcliente = venta.getVeIdcliente();
             if (veIdcliente != null) {
                 veIdcliente.getVentaList().remove(venta);
@@ -308,6 +308,18 @@ public class VentaJpaController implements Serializable {
         }
     }
     
+    public Venta getNumFacLast() {
+        EntityManager em = getEntityManager();
+        try {
+            return (Venta) em.createNativeQuery("Select * from venta order by ve_factventa desc limit 1", Venta.class).getResultList().get(0);
+        }catch(Exception e){
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+
     public Double getSumPrecioVentaTotal(String date) {
         EntityManager em = getEntityManager();
         try {
@@ -326,15 +338,4 @@ public class VentaJpaController implements Serializable {
         }
     }
     
-    public Venta getNumFacLast() {
-        EntityManager em = getEntityManager();
-        try {
-            return (Venta) em.createNativeQuery("Select * from venta order by ve_factventa desc limit 1", Venta.class).getResultList().get(0);
-        }catch(Exception e){
-            return null;
-        } finally {
-            em.close();
-        }
-    }    
-        
 }

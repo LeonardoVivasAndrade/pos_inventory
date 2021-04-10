@@ -2,6 +2,7 @@ package Utileria;
 
 import DAO.Conexion;
 import DAO.InventarioJpaController;
+import DAO.exceptions.NonexistentEntityException;
 import DTO.*;
 import java.text.DecimalFormat;
 import org.json.JSONArray;
@@ -44,10 +45,14 @@ public class Util {
         documento.put("codigo", inventario.getInCodigo());
         documento.put("descripcion", inventario.getInDescripcion());
         documento.put("categoria", inventario.getInIddepartamento().getDpDescripcion());
-        documento.put("existencia", inventario.getStock().getStCantidad());
+        if (inventario.getStock() != null) 
+            documento.put("existencia", inventario.getStock().getStCantidad());        
+        else
+            documento.put("existencia", 0);        
         documento.put("imagen", inventario.getInImage());
         documento.put("costo", inventario.getInCosto());
         documento.put("precio", inventario.getInPrecioCiva());
+        documento.put("utilidad", inventario.getInPrecioCiva() - inventario.getInCosto());
         documento.put("fechaCreacion", dateToString(inventario.getInFechacreacion()));
         return documento;
     }
@@ -102,8 +107,9 @@ public class Util {
         return v;
     }
     
-    public static List<Dventa> jsonProductosToListDventa(String productos, Venta venta) throws JSONException {
+    public static List<Dventa> jsonProductosToListDventa(String productos, Venta venta) throws JSONException, NonexistentEntityException, Exception {
         JSONArray json = new JSONArray(productos);
+        
 
         EntityManagerFactory emf = new Conexion().getBd();
         InventarioJpaController inventarioDao = new InventarioJpaController(emf);
@@ -111,6 +117,7 @@ public class Util {
         List<Dventa> listDv = new ArrayList<>();
 
         for (int i = 0; i < json.length(); i++) {
+            
             JSONObject o = json.getJSONObject(i);
 
             Object id = o.get("idProducto");
@@ -131,10 +138,10 @@ public class Util {
             dv.setDveIdinventario(inv);
             dv.setDveIddepartamento(inv.getInIddepartamento());
             dv.setDveCantidad(cantidad);
-            dv.setDveCosto(inv.getInCosto());
+            dv.setDveCosto(costo * cantidad);
             dv.setDveImpuesto(0);
-            dv.setDvePreciociva(precio);
-            dv.setDvePreciosiva(precio);
+            dv.setDvePreciociva(precio * cantidad);
+            dv.setDvePreciosiva(precio * cantidad);
             dv.setDveIdcliente(new Cliente(1));
             dv.setDveFechaventa(venta.getVeFechaventa());
             dv.setDveFechacreacion(venta.getVeFechaventa());
@@ -142,7 +149,7 @@ public class Util {
             dv.setDveIscanceled(false);
             listDv.add(dv);
 
-            inv.setDventaList(listDv);
+            inv.getDventaList().add(dv);            
         }
 
         return listDv;
@@ -150,16 +157,17 @@ public class Util {
 
     public static JSONObject dventaToJSON(Dventa dventa) throws JSONException {
         JSONObject documento = new JSONObject();
-        int cantidad = 0;
+        int cantidad = (int) dventa.getDveCantidad();
         Inventario i = dventa.getDveIdinventario();
 
-        for (Dventa dv : i.getDventaList()) {
-            cantidad += dv.getDveCantidad();
-        }
+//        for (Dventa dv : i.getDventaList()) {
+//            cantidad += dv.getDveCantidad();
+//        }
 
         documento.put("descripcion", i.getInDescripcion());
         documento.put("cantidad", cantidad);
         documento.put("departamento", i.getInIddepartamento().getDpDescripcion());
+        documento.put("precio", dventa.getDvePreciociva());
         return documento;
     }  
     
@@ -307,7 +315,7 @@ public class Util {
     }
     
     public static String doubleFormat(Double number){        
-        DecimalFormat df = new DecimalFormat("###,###");
+        DecimalFormat df = new DecimalFormat("###,###,###");
         return number != null ? df.format(number) : "0";
     }
 

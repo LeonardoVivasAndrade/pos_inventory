@@ -1,13 +1,14 @@
-//Metodos Dao Venta
-
-public Double getSumVentaTotal(String date) {
+//METODOS DAO COMPRA
+public Compra getNumFacLast() {
         EntityManager em = getEntityManager();
         try {
-            return (Double) em.createNativeQuery("SELECT SUM(ve_preciototal) FROM venta WHERE date(ve_fechaventa)='"+date+"'").getResultList().get(0);
+            return (Compra) em.createNativeQuery("Select * from compra order by co_factcompra desc limit 1", Compra.class).getResultList().get(0);
+        }catch(Exception e){
+            return null;
         } finally {
             em.close();
         }
-    }
+    } 
 	
 //Metodos Dao Departamento//
 public Departamento findDepartamentoByDescripcion(String descripcion) {
@@ -45,11 +46,32 @@ public Venta getNumFacLast() {
             em.close();
         }
     }
-//Metodos Dao Dventa
-public List<Dventa> getBestProducts() {
+
+
+    public Double getSumPrecioVentaTotal(String date) {
         EntityManager em = getEntityManager();
         try {
-             List<Dventa> l = em.createNativeQuery("SELECT dve_id,dve_idinventario FROM dventa GROUP by dve_idinventario order by sum(dve_cantidad) desc limit 10",Dventa.class).getResultList();      
+            return (Double) em.createNativeQuery("SELECT SUM(ve_preciototal) FROM venta WHERE date(ve_fechaventa)='"+date+"'").getResultList().get(0);
+        } finally {
+            em.close();
+        }
+    }
+    
+    public Double getSumCostoVentaTotal(String date) {
+        EntityManager em = getEntityManager();
+        try {
+            return (Double) em.createNativeQuery("SELECT SUM(ve_costototal) FROM venta WHERE date(ve_fechaventa)='"+date+"'").getResultList().get(0);
+        } finally {
+            em.close();
+        }
+    }
+	
+	
+//Metodos Dao Dventa
+public List<Object[]> getBestProducts() {
+        EntityManager em = getEntityManager();
+        try {
+            List<Object[]> l = (List<Object[]>) em.createNativeQuery("SELECT dve_idinventario, sum(dve_cantidad) from dventa GROUP by dve_idinventario order by sum(dve_cantidad) desc limit 10").getResultList();      
             return l;
         }catch(Exception e){            
             return null;

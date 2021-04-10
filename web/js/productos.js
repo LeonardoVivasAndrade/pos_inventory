@@ -8,7 +8,7 @@ $(document).ready(function () {
     if ((window.location.href).includes("productos")) {
         loadCategorias();
         loadProductos();
-        loadProductsTable();        
+//        loadProductsTable();        
     }
 });
 
@@ -339,7 +339,7 @@ function loadProductsTable() {
         var imagenUrl = p.imagen;
         if (imagenUrl === "")
             imagenUrl = "img/productos/default/anonymous.png";
-        var imagen = "<img src='" + imagenUrl + "' width='40px'>";
+//        var imagen = "<img src='" + imagenUrl + "' width='40px'>";
 
         //button stock
         var btnCantidad = "<button class='btn btn-danger'>" + p.existencia + "</button>";
@@ -351,14 +351,14 @@ function loadProductsTable() {
                             <button class='btn btn-danger btnEliminarProducto' idProducto='" + p.idProducto + "' codigo='" + p.codigo + "' imagen='" + p.imagen + "'><i class='fa fa-times'></i></button></div>";
 
         tabla.row.add([
-            imagen,
             p.codigo,
             p.descripcion,
             p.categoria,
             btnCantidad,
-            p.costo.toLocaleString("en-US"),
-            p.precio.toLocaleString("en-US"),
-            p.fechaCreacion,
+            p.costo.toLocaleString("de-DE"),
+            p.utilidad.toLocaleString("de-DE"),
+            p.precio.toLocaleString("de-DE"),
+//            p.fechaCreacion,
             botones
         ]).draw(false);
     });

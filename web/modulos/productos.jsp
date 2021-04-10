@@ -25,14 +25,14 @@
                 <table id="tablaProductos" class="table table-bordered table-striped dt-responsive tablaProductos tablas" width="100%">
                     <thead>
                         <tr>
-                            <th data-orderable="false" style="width:50px">Imagen</th>
+                            <!--<th data-orderable="false" style="width:50px">Imagen</th>-->
                             <th style="width:50px">Código</th>
                             <th style="width:500px">Descripción</th>
                             <th style="width:150px">Categoría</th>
                             <th style="width:20px">Existencia</th>
                             <th style="width:100px">Costo</th>
-                            <th style="width:100px" >Precio de venta</th>
-                            <th style="width:100px">Modificado</th>
+                            <th style="width:100px">Ganancia</th>
+                            <th style="width:100px" >Precio</th>
                             <th style="width:80px" data-orderable="false">Acciones</th>
                         </tr> 
                     </thead> 

@@ -317,6 +317,6 @@ public class CompraJpaController implements Serializable {
         } finally {
             em.close();
         }
-    }  
+    } 
     
 }

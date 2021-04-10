@@ -50,7 +50,7 @@ public class Dventa implements Serializable {
     private Integer dveId;
     @Basic(optional = false)
     @Column(name = "dve_cantidad")
-    private int dveCantidad;
+    private float dveCantidad;
     @Basic(optional = false)
     @Column(name = "dve_costo")
     private float dveCosto;
@@ -83,12 +83,12 @@ public class Dventa implements Serializable {
     @JoinColumn(name = "dve_idinventario", referencedColumnName = "in_id")
     @ManyToOne(optional = false)
     private Inventario dveIdinventario;
-    @JoinColumn(name = "dve_iduser", referencedColumnName = "us_id")
-    @ManyToOne(optional = false)
-    private Usuario dveIduser;
     @JoinColumn(name = "dve_idventa", referencedColumnName = "ve_id")
     @ManyToOne(optional = false)
     private Venta dveIdventa;
+    @JoinColumn(name = "dve_iduser", referencedColumnName = "us_id")
+    @ManyToOne(optional = false)
+    private Usuario dveIduser;
 
     public Dventa() {
     }
@@ -97,7 +97,7 @@ public class Dventa implements Serializable {
         this.dveId = dveId;
     }
 
-    public Dventa(Integer dveId, int dveCantidad, float dveCosto, float dveImpuesto, float dvePreciosiva, float dvePreciociva, Date dveFechaventa, Date dveFechacreacion, boolean dveIscanceled) {
+    public Dventa(Integer dveId, float dveCantidad, float dveCosto, float dveImpuesto, float dvePreciosiva, float dvePreciociva, Date dveFechaventa, Date dveFechacreacion, boolean dveIscanceled) {
         this.dveId = dveId;
         this.dveCantidad = dveCantidad;
         this.dveCosto = dveCosto;
@@ -117,11 +117,11 @@ public class Dventa implements Serializable {
         this.dveId = dveId;
     }
 
-    public int getDveCantidad() {
+    public float getDveCantidad() {
         return dveCantidad;
     }
 
-    public void setDveCantidad(int dveCantidad) {
+    public void setDveCantidad(float dveCantidad) {
         this.dveCantidad = dveCantidad;
     }
 
@@ -205,20 +205,20 @@ public class Dventa implements Serializable {
         this.dveIdinventario = dveIdinventario;
     }
 
-    public Usuario getDveIduser() {
-        return dveIduser;
-    }
-
-    public void setDveIduser(Usuario dveIduser) {
-        this.dveIduser = dveIduser;
-    }
-
     public Venta getDveIdventa() {
         return dveIdventa;
     }
 
     public void setDveIdventa(Venta dveIdventa) {
         this.dveIdventa = dveIdventa;
+    }
+
+    public Usuario getDveIduser() {
+        return dveIduser;
+    }
+
+    public void setDveIduser(Usuario dveIduser) {
+        this.dveIduser = dveIduser;
     }
 
     @Override

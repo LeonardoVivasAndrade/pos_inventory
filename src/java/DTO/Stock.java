@@ -32,10 +32,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Stock.findAll", query = "SELECT s FROM Stock s")
     , @NamedQuery(name = "Stock.findByStIdinventario", query = "SELECT s FROM Stock s WHERE s.stIdinventario = :stIdinventario")
     , @NamedQuery(name = "Stock.findByStCantidad", query = "SELECT s FROM Stock s WHERE s.stCantidad = :stCantidad")
-    , @NamedQuery(name = "Stock.findByStCostototal", query = "SELECT s FROM Stock s WHERE s.stCostototal = :stCostototal")
-    , @NamedQuery(name = "Stock.findByStImpuestototal", query = "SELECT s FROM Stock s WHERE s.stImpuestototal = :stImpuestototal")
-    , @NamedQuery(name = "Stock.findByStUtilidadtotal", query = "SELECT s FROM Stock s WHERE s.stUtilidadtotal = :stUtilidadtotal")
-    , @NamedQuery(name = "Stock.findByStPreciototal", query = "SELECT s FROM Stock s WHERE s.stPreciototal = :stPreciototal")
     , @NamedQuery(name = "Stock.findByStFecha", query = "SELECT s FROM Stock s WHERE s.stFecha = :stFecha")})
 public class Stock implements Serializable {
 
@@ -47,18 +43,6 @@ public class Stock implements Serializable {
     @Basic(optional = false)
     @Column(name = "st_cantidad")
     private float stCantidad;
-    @Basic(optional = false)
-    @Column(name = "st_costototal")
-    private float stCostototal;
-    @Basic(optional = false)
-    @Column(name = "st_impuestototal")
-    private float stImpuestototal;
-    @Basic(optional = false)
-    @Column(name = "st_utilidadtotal")
-    private float stUtilidadtotal;
-    @Basic(optional = false)
-    @Column(name = "st_preciototal")
-    private float stPreciototal;
     @Basic(optional = false)
     @Column(name = "st_fecha")
     @Temporal(TemporalType.TIMESTAMP)
@@ -80,13 +64,9 @@ public class Stock implements Serializable {
         this.stIdinventario = stIdinventario;
     }
 
-    public Stock(Integer stIdinventario, float stCantidad, float stCostototal, float stImpuestototal, float stUtilidadtotal, float stPreciototal, Date stFecha) {
+    public Stock(Integer stIdinventario, float stCantidad, Date stFecha) {
         this.stIdinventario = stIdinventario;
         this.stCantidad = stCantidad;
-        this.stCostototal = stCostototal;
-        this.stImpuestototal = stImpuestototal;
-        this.stUtilidadtotal = stUtilidadtotal;
-        this.stPreciototal = stPreciototal;
         this.stFecha = stFecha;
     }
 
@@ -104,38 +84,6 @@ public class Stock implements Serializable {
 
     public void setStCantidad(float stCantidad) {
         this.stCantidad = stCantidad;
-    }
-
-    public float getStCostototal() {
-        return stCostototal;
-    }
-
-    public void setStCostototal(float stCostototal) {
-        this.stCostototal = stCostototal;
-    }
-
-    public float getStImpuestototal() {
-        return stImpuestototal;
-    }
-
-    public void setStImpuestototal(float stImpuestototal) {
-        this.stImpuestototal = stImpuestototal;
-    }
-
-    public float getStUtilidadtotal() {
-        return stUtilidadtotal;
-    }
-
-    public void setStUtilidadtotal(float stUtilidadtotal) {
-        this.stUtilidadtotal = stUtilidadtotal;
-    }
-
-    public float getStPreciototal() {
-        return stPreciototal;
-    }
-
-    public void setStPreciototal(float stPreciototal) {
-        this.stPreciototal = stPreciototal;
     }
 
     public Date getStFecha() {
@@ -183,7 +131,6 @@ public class Stock implements Serializable {
         if (!(object instanceof Stock)) {
             return false;
         }
-        
         Stock other = (Stock) object;
         if ((this.stIdinventario == null && other.stIdinventario != null) || (this.stIdinventario != null && !this.stIdinventario.equals(other.stIdinventario))) {
             return false;

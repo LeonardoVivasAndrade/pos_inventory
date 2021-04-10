@@ -51,7 +51,7 @@ function loadProductosVenta() {
 
         tabla.row.add([
             p.descripcion,
-            p.precio.toLocaleString("en-US"),
+            p.precio.toLocaleString("de-DE"),
             btnCantidad,
             boton
         ]).draw(false);
@@ -78,8 +78,10 @@ $(".tablaVenta tbody").on("click", "button.agregarProducto", function () {
     var o = listProductos.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
 
     var descripcion = o.descripcion;
-    var precio = Number(o.precio).toFixed(0);
+    var precio = o.precio;
     var stock = o.existencia;
+    
+    var precioformat = new Intl.NumberFormat('de-DE').format(precio);
 
     //verifica que exista cantidades disponibes
     if (stock <= 0) {
@@ -110,7 +112,7 @@ $(".tablaVenta tbody").on("click", "button.agregarProducto", function () {
                 '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
                 '<div class="input-group">' +
                 '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
-                '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precio + '" required>' +
+                '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precioformat + '" required>' +
                 '</div>' +
                 '</div>' +
                 '</div>');
@@ -119,9 +121,6 @@ $(".tablaVenta tbody").on("click", "button.agregarProducto", function () {
         // SUMAR TOTAL DE PRECIOS
         sumarTotalPrecios();
 
-        // PONER FORMATO DE MILES 
-        $(".nuevoPrecioProducto").number(true, 0);
-        $("#nuevoTotalVenta").number(true, 0);
 
         //guardando el localStorage
         var tmpListVentaJSON = JSON.stringify(listProductosVenta);
@@ -153,7 +152,7 @@ function borrarProductoVenta(e) {
 
     sumarTotalPrecios();
 
-    $("#nuevoTotalVenta").number(true, 0);
+//    $("#nuevoTotalVenta").number(true, 0);
 
     //guardando el localStorage
     var tmpListVentaJSON = JSON.stringify(listProductosVenta);
@@ -198,7 +197,7 @@ function modificarCantidadItem(e) {
 }
 
 function modificarPrecioItem(e) {
-    var val = replaceAll(e.value, ",", "");
+    var val = replaceAll(e.value, ".", "");
     var nuevoPrecio = Number(val);
     var idProductoText = $(e).attr('idproducto');
     var id = Number(idProductoText);
@@ -216,6 +215,8 @@ function modificarPrecioItem(e) {
         localStorage.setItem('listProductosVenta', tmpListVentaJSON);
         sumarTotalPrecios();
         calcularCambio();
+        var nuevoValor = new Intl.NumberFormat('de-DE').format(val);        
+        $(e).val(nuevoValor);
     }
 
 }
@@ -279,12 +280,14 @@ function sumarTotalPrecios() {
         var cantidad = p.cantidad;
         sumaTotalPrecio += precio * cantidad;
     });
-
-    $("#nuevoTotalVenta").val(sumaTotalPrecio);
-    $("#totalVenta").val(sumaTotalPrecio);
-    $("#nuevoTotalVenta").attr("total", sumaTotalPrecio);
-    $("#nuevoValorEfectivo").val(sumaTotalPrecio);
-    $("#nuevoValorEfectivo").number(true, 0);
+    
+    //formato miles
+    var totalformat = new Intl.NumberFormat('de-DE').format(sumaTotalPrecio);
+    $("#nuevoTotalVenta").val(totalformat);
+    
+    //formato miles
+    var efectivoformat = new Intl.NumberFormat('de-DE').format(sumaTotalPrecio);
+    $("#nuevoValorEfectivo").val(efectivoformat);
 }
 
 /*=============================================
@@ -296,11 +299,18 @@ $("#nuevoValorEfectivo").on('input', function () {
 
 function calcularCambio() {
     var val = $("#nuevoValorEfectivo").val();
-    var val1 = replaceAll(val, ',', '');
-    var efectivo = Number(val1);
-    var totalVenta = Number($('#nuevoTotalVenta').val());
-    var cambio = (efectivo - totalVenta).toLocaleString("en-US");
-    $("#nuevoCambioEfectivo").val(cambio);
+    var val1 = replaceAll(val, '.', '');
+    var efectivo = val1;
+    var totalVenta = $('#nuevoTotalVenta').val();
+    var totalVentaUnformat = replaceAll(totalVenta, '.', '');
+    var cambio = efectivo - totalVentaUnformat;
+    
+    //formato miles
+    var cambioformat = new Intl.NumberFormat('de-DE').format(cambio);
+    $("#nuevoCambioEfectivo").val(cambioformat);
+    
+    var efectivoformat = new Intl.NumberFormat('de-DE').format(val1);
+    $("#nuevoValorEfectivo").val(efectivoformat);
 }
 
 function mostrarProductosPendientesVenta() {
@@ -322,9 +332,11 @@ function drawItemVenta(e) {
     var o = listProductosVenta.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
 
     var descripcion = o.descripcion;
-    var precio = Number(o.precio).toFixed(0);
+    var precio = o.precio;
     var stock = o.existencia;
     var cantidad = o.cantidad;
+    
+    var precioformat = new Intl.NumberFormat('de-DE').format(precio);
 
     //verifica que exista cantidades disponibes
     if (stock <= 0) {
@@ -352,7 +364,7 @@ function drawItemVenta(e) {
                 '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
                 '<div class="input-group">' +
                 '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
-                '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" onblur="setPrecioDefault(this)" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precio + '" required>' +
+                '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" onblur="setPrecioDefault(this)" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precioformat + '" required>' +
                 '</div>' +
                 '</div>' +
                 '</div>');
@@ -362,8 +374,8 @@ function drawItemVenta(e) {
         sumarTotalPrecios();
 
         // PONER FORMATO DE MILES 
-        $(".nuevoPrecioProducto").number(true, 0);
-        $("#nuevoTotalVenta").number(true, 0);
+//        var precioformat = new Intl.NumberFormat('de-DE').format(precio);
+//        $(this).val(precioformat);  
     }
 }
 

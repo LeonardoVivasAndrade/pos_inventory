@@ -15,8 +15,8 @@ import DTO.Cliente;
 import DTO.Departamento;
 import DTO.Dventa;
 import DTO.Inventario;
-import DTO.Usuario;
 import DTO.Venta;
+import DTO.Usuario;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -56,15 +56,15 @@ public class DventaJpaController implements Serializable {
                 dveIdinventario = em.getReference(dveIdinventario.getClass(), dveIdinventario.getInId());
                 dventa.setDveIdinventario(dveIdinventario);
             }
-            Usuario dveIduser = dventa.getDveIduser();
-            if (dveIduser != null) {
-                dveIduser = em.getReference(dveIduser.getClass(), dveIduser.getUsId());
-                dventa.setDveIduser(dveIduser);
-            }
             Venta dveIdventa = dventa.getDveIdventa();
             if (dveIdventa != null) {
                 dveIdventa = em.getReference(dveIdventa.getClass(), dveIdventa.getVeId());
                 dventa.setDveIdventa(dveIdventa);
+            }
+            Usuario dveIduser = dventa.getDveIduser();
+            if (dveIduser != null) {
+                dveIduser = em.getReference(dveIduser.getClass(), dveIduser.getUsId());
+                dventa.setDveIduser(dveIduser);
             }
             em.persist(dventa);
             if (dveIdcliente != null) {
@@ -79,13 +79,13 @@ public class DventaJpaController implements Serializable {
                 dveIdinventario.getDventaList().add(dventa);
                 dveIdinventario = em.merge(dveIdinventario);
             }
-            if (dveIduser != null) {
-                dveIduser.getDventaList().add(dventa);
-                dveIduser = em.merge(dveIduser);
-            }
             if (dveIdventa != null) {
                 dveIdventa.getDventaList().add(dventa);
                 dveIdventa = em.merge(dveIdventa);
+            }
+            if (dveIduser != null) {
+                dveIduser.getDventaList().add(dventa);
+                dveIduser = em.merge(dveIduser);
             }
             em.getTransaction().commit();
         } finally {
@@ -107,10 +107,10 @@ public class DventaJpaController implements Serializable {
             Departamento dveIddepartamentoNew = dventa.getDveIddepartamento();
             Inventario dveIdinventarioOld = persistentDventa.getDveIdinventario();
             Inventario dveIdinventarioNew = dventa.getDveIdinventario();
-            Usuario dveIduserOld = persistentDventa.getDveIduser();
-            Usuario dveIduserNew = dventa.getDveIduser();
             Venta dveIdventaOld = persistentDventa.getDveIdventa();
             Venta dveIdventaNew = dventa.getDveIdventa();
+            Usuario dveIduserOld = persistentDventa.getDveIduser();
+            Usuario dveIduserNew = dventa.getDveIduser();
             if (dveIdclienteNew != null) {
                 dveIdclienteNew = em.getReference(dveIdclienteNew.getClass(), dveIdclienteNew.getClId());
                 dventa.setDveIdcliente(dveIdclienteNew);
@@ -123,13 +123,13 @@ public class DventaJpaController implements Serializable {
                 dveIdinventarioNew = em.getReference(dveIdinventarioNew.getClass(), dveIdinventarioNew.getInId());
                 dventa.setDveIdinventario(dveIdinventarioNew);
             }
-            if (dveIduserNew != null) {
-                dveIduserNew = em.getReference(dveIduserNew.getClass(), dveIduserNew.getUsId());
-                dventa.setDveIduser(dveIduserNew);
-            }
             if (dveIdventaNew != null) {
                 dveIdventaNew = em.getReference(dveIdventaNew.getClass(), dveIdventaNew.getVeId());
                 dventa.setDveIdventa(dveIdventaNew);
+            }
+            if (dveIduserNew != null) {
+                dveIduserNew = em.getReference(dveIduserNew.getClass(), dveIduserNew.getUsId());
+                dventa.setDveIduser(dveIduserNew);
             }
             dventa = em.merge(dventa);
             if (dveIdclienteOld != null && !dveIdclienteOld.equals(dveIdclienteNew)) {
@@ -156,14 +156,6 @@ public class DventaJpaController implements Serializable {
                 dveIdinventarioNew.getDventaList().add(dventa);
                 dveIdinventarioNew = em.merge(dveIdinventarioNew);
             }
-            if (dveIduserOld != null && !dveIduserOld.equals(dveIduserNew)) {
-                dveIduserOld.getDventaList().remove(dventa);
-                dveIduserOld = em.merge(dveIduserOld);
-            }
-            if (dveIduserNew != null && !dveIduserNew.equals(dveIduserOld)) {
-                dveIduserNew.getDventaList().add(dventa);
-                dveIduserNew = em.merge(dveIduserNew);
-            }
             if (dveIdventaOld != null && !dveIdventaOld.equals(dveIdventaNew)) {
                 dveIdventaOld.getDventaList().remove(dventa);
                 dveIdventaOld = em.merge(dveIdventaOld);
@@ -171,6 +163,14 @@ public class DventaJpaController implements Serializable {
             if (dveIdventaNew != null && !dveIdventaNew.equals(dveIdventaOld)) {
                 dveIdventaNew.getDventaList().add(dventa);
                 dveIdventaNew = em.merge(dveIdventaNew);
+            }
+            if (dveIduserOld != null && !dveIduserOld.equals(dveIduserNew)) {
+                dveIduserOld.getDventaList().remove(dventa);
+                dveIduserOld = em.merge(dveIduserOld);
+            }
+            if (dveIduserNew != null && !dveIduserNew.equals(dveIduserOld)) {
+                dveIduserNew.getDventaList().add(dventa);
+                dveIduserNew = em.merge(dveIduserNew);
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -216,15 +216,15 @@ public class DventaJpaController implements Serializable {
                 dveIdinventario.getDventaList().remove(dventa);
                 dveIdinventario = em.merge(dveIdinventario);
             }
-            Usuario dveIduser = dventa.getDveIduser();
-            if (dveIduser != null) {
-                dveIduser.getDventaList().remove(dventa);
-                dveIduser = em.merge(dveIduser);
-            }
             Venta dveIdventa = dventa.getDveIdventa();
             if (dveIdventa != null) {
                 dveIdventa.getDventaList().remove(dventa);
                 dveIdventa = em.merge(dveIdventa);
+            }
+            Usuario dveIduser = dventa.getDveIduser();
+            if (dveIduser != null) {
+                dveIduser.getDventaList().remove(dventa);
+                dveIduser = em.merge(dveIduser);
             }
             em.remove(dventa);
             em.getTransaction().commit();
@@ -279,12 +279,12 @@ public class DventaJpaController implements Serializable {
         } finally {
             em.close();
         }
-    }
+    }  
     
-    public List<Dventa> getBestProducts() {
+    public List<Object[]> getBestProducts() {
         EntityManager em = getEntityManager();
         try {
-             List<Dventa> l = em.createNativeQuery("SELECT dve_id,dve_idinventario FROM dventa GROUP by dve_idinventario order by sum(dve_cantidad) desc limit 10",Dventa.class).getResultList();      
+            List<Object[]> l = (List<Object[]>) em.createNativeQuery("SELECT dve_idinventario, sum(dve_cantidad) from dventa GROUP by dve_idinventario order by sum(dve_cantidad) desc limit 10").getResultList();      
             return l;
         }catch(Exception e){            
             return null;
@@ -292,6 +292,5 @@ public class DventaJpaController implements Serializable {
             em.close();
         }
     } 
-    
     
 }

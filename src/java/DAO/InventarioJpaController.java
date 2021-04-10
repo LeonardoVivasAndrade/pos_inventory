@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import DTO.Dcompra;
 import DTO.Inventario;
-import com.mysql.jdbc.PreparedStatement;
-import java.sql.Statement;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
@@ -164,7 +162,7 @@ public class InventarioJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            if (stockNew != null && stockNew.getStCantidad() == stockOld.getStCantidad()) {
+            if (stockNew != null) {
                 stockNew = em.getReference(stockNew.getClass(), stockNew.getStIdinventario());
                 inventario.setStock(stockNew);
             }
@@ -366,6 +364,6 @@ public class InventarioJpaController implements Serializable {
         } finally {
             em.close();
         }
-    }    
+    }
     
 }

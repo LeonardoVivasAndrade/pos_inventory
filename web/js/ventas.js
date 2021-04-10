@@ -3,7 +3,7 @@ var listVentas = [];
 $(document).ready(function () {
     //detectar si esta desde ventas
     if ((window.location.href).includes("ventas")) {
-        loadVentas("","","default");
+        loadVentas("", "", "default");
     }
 });
 
@@ -17,11 +17,11 @@ function loadVentas(fecha1, fecha2, range) {
         fechaStart: fecha1,
         fechaEnd: fecha2
     };
-    
+
 //    showLoader('Cargando ventas');
 
     $.get("/CtrVentas.do", params, function (responseJson) {
-        listVentas = responseJson;        
+        listVentas = responseJson;
         loadVentasTabla();
     });
 }
@@ -40,15 +40,15 @@ function loadVentasTabla() {
         console.log(v);
         //buttons action view and delete
         var botones = '<div class="btn-group">\n\
-                        <div class="tooltipnuevo"><button class="btn btn-primary btnVerVenta" data-toggle="tooltip" title="Ver Factura" idVenta="'+v.id+'"><i class="fa fa-eye"></i></button><span class="tooltiptext">Ver Factura</span></div>\n\
-                        <div class="tooltipnuevo"><button class="btn btn-danger btnEliminarVenta" data-toggle="tooltip" title="Eliminar Factura" idVenta="'+v.id+'"><i class="fa fa-times"></i></button><span class="tooltiptext">Eliminar Factura</span></div></div>';
+                        <div class="tooltipnuevo"><button class="btn btn-primary btnVerVenta" data-toggle="modal" data-target="#modalDetalleVenta" data-toggle="tooltip" title="Ver Factura" numeroVenta="' + v.numero + '" idVenta="' + v.id + '"><i class="fa fa-eye"></i></button><span class="tooltiptext">Ver Factura</span></div>\n\
+                        <div class="tooltipnuevo"><button class="btn btn-danger btnEliminarVenta" data-toggle="tooltip" title="Eliminar Factura"  idVenta="' + v.id + '"><i class="fa fa-times"></i></button><span class="tooltiptext">Anular Factura</span></div></div>';
 
-        tabla.row.add([          
+        tabla.row.add([
             v.numero,
             v.fecha,
             v.cantidad,
-            v.utilidad.toLocaleString("en-US"),
-            v.total.toLocaleString("en-US"),            
+            v.utilidad.toLocaleString("de-DE"),
+            v.total.toLocaleString("de-DE"),
             botones
         ]).draw(false);
 
@@ -59,6 +59,35 @@ function loadVentasTabla() {
 //    }, 1000);
 }
 
+function deleteVenta(idVenta) {
+
+    var params = {
+        option: "deleteVenta",
+        idVenta: idVenta
+    };
+
+    $.get("/CtrVentas.do", params, function (response) {
+        var indexPage = $('.tablaVentas').DataTable().page();
+
+        if (response.result === "success") {
+            var id = Number(idVenta);
+            var o = listVentas.find(result => result.idProducto === id); //extrae el objeto con el argumento idVenta
+            var index = listVentas.indexOf(o); //busca el indice del objeto en el array
+            listVentas.splice(index, 1); //elimina el objeto del array
+
+            alertBottomEnd("Venta eliminada con éxito!", response.result);
+            loadVentasTabla(); //redibuja la tabla
+        } else if (response.result === "error") {
+            alertBottomEnd("No se pudo eliminar la venta!", response.result);
+        } else if (response.result === "warning") {
+            alertBottomEnd("No se pudo eliminar la venta!", response.result);
+        }
+
+        //Se ubica en la pagina de la tabla donde estaba
+        $('.tablaVentas').DataTable().page(indexPage).draw('page');
+    });
+}
+
 /*=============================================
  BORRAR VENTA
  =============================================*/
@@ -66,24 +95,77 @@ $(".tablas").on("click", ".btnEliminarVenta", function () {
 
     var idVenta = $(this).attr("idVenta");
 
-    swal({
-        title: '¿Está seguro de borrar la venta?',
+    Swal.fire({
+        title: '¿Está seguro de anular la venta?',
         text: "¡Si no lo está puede cancelar la accíón!",
-        type: 'warning',
+        icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         cancelButtonText: 'Cancelar',
-        confirmButtonText: 'Si, borrar venta!'
-    }).then(function (result) {
-        if (result.value) {
+        confirmButtonText: 'Si, anular venta!'
+    }).then((result) => {
+        if (result.value)
+            deleteVenta(idVenta);
+    });
 
-            window.location = "index.php?ruta=ventas&idVenta=" + idVenta;
-        }
+});
 
-    })
+/*=============================================
+ VER VENTA
+ =============================================*/
+$(".tablas").on("click", ".btnVerVenta", function () {
+    document.getElementsByClassName("productoDetalleVenta")[0].innerHTML = "<strong><h4>Productos vendidos</h4></strong>";
 
-})
+    var idVenta = $(this).attr("idVenta");
+    var numeroVenta = $(this).attr("numeroVenta");
+
+    $("#titleModalDetalleVenta").text("Detalle de venta #" + numeroVenta);
+
+    var params = {
+        option: "getDetalleVenta",
+        idVenta: idVenta
+    };
+
+
+    $.get("/CtrVentas.do", params, function (responseJson) {
+        var listProd = responseJson;
+        var total = 0;
+
+        $.each(listProd, function (index, p) {
+            
+            var precio = new Intl.NumberFormat('de-DE').format(p.precio);
+            
+            total += p.precio;
+           
+
+            $(".productoDetalleVenta").append(
+                    '<div class="row" style="padding:5px 15px">' +
+                    '<!-- Descripción del producto -->' +
+                    '<div class="col-xs-7" style="padding-right:0px">' +
+//                '<div class="input-group">' +
+                    '<input type="text" class="form-control" value="' + p.descripcion + '" readonly required>' +
+//                '</div>' +
+                    '</div>' +
+                    '<!-- Cantidad del producto -->' +
+                    '<div class="col-xs-2">' +
+                    '<input type="text" class="form-control" min="1" value="' + p.cantidad + '" readonly>' +
+                    '</div>' +
+                    '<!-- Precio del producto -->' +
+                    '<div class="col-xs-3" style="padding-left:0px">' +
+                    '<div class="input-group">' +
+                    '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
+                    '<input type="text" class="form-control" value="' + precio + '" readonly>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>');
+
+        });
+        
+        var totalFormated = new Intl.NumberFormat('de-DE').format(total);
+        $(".productoDetalleVenta").append("<strong><h4>Total Venta: $ "+totalFormated+"</h4></strong>");
+    });
+});
 
 
 /*=============================================
@@ -135,7 +217,7 @@ $(".daterangepicker.opensleft .ranges li").on("click", function () {
     var textoHoy = $(this).attr("data-range-key");
 
     if (textoHoy == "Hoy") {
-        
+
         var d = new Date();
 
         var dia = d.getDate();

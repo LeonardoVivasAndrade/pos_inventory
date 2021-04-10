@@ -57,9 +57,11 @@
 
         </div>
         <div class="col-md-1">
-
         </div>
-
     </div>
-
 </div>
+
+<!--=====================================
+MODAL DETALLE DE VENTA
+======================================-->
+<%@include file="./modal/modalDetalleVenta.jsp" %>

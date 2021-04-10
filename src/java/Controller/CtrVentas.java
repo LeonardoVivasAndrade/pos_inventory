@@ -79,10 +79,20 @@ public class CtrVentas extends HttpServlet {
                     Logger.getLogger(CtrVentas.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
+            break;
             case "deleteVenta":
-//                String delProductoReturn = deleteProducto(Integer.valueOf(idProducto));
-//                response.getWriter().write("{\"result\":\"" + delProductoReturn + "\"}");
+                String idVenta = request.getParameter("idVenta");
+                String delVentaReturn = deleteVenta(Integer.valueOf(idVenta));
+                response.getWriter().write("{\"result\":\"" + delVentaReturn + "\"}");
+                break;
+            case "getDetalleVenta":
+                try {
+                    String idV = request.getParameter("idVenta");
+                    response.getWriter().write(getDetalleVenta(idV).toString());
+                } catch (JSONException ex) {
+                    Logger.getLogger(CtrVentas.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
                 break;
         }
     }
@@ -136,12 +146,19 @@ public class CtrVentas extends HttpServlet {
             List<Dventa> listDv = Util.jsonProductosToListDventa(productos, venta);
 
             for (Dventa dventa : listDv) {
-                dventaDao.create(dventa);
-                Stock stock = stockDao.findStock(dventa.getDveIdinventario().getInId());
-                float cantidadActual = stock.getStCantidad();
+
+                //valores venta
                 float cantidadVenta = dventa.getDveCantidad();
-                stock.setStCantidad(cantidadActual - cantidadVenta);
+
+                //valores stock
+                Stock stock = stockDao.findStock(dventa.getDveIdinventario().getInId());
+                float cantidadStock = stock.getStCantidad();
+
+                //Edit stock
+                stock.setStCantidad(cantidadStock - cantidadVenta);
                 stockDao.edit(stock);
+
+                dventaDao.create(dventa);
             }
 
             return SUCCESS;
@@ -154,26 +171,20 @@ public class CtrVentas extends HttpServlet {
 
         Map<String, Object> list = new HashMap<>();
         DventaJpaController dventaDao = new DventaJpaController(emf);
-        List<Dventa> dventaList = dventaDao.getBestProducts();
+        InventarioJpaController inventarioDao = new InventarioJpaController(emf);
+        List<Object[]> dventaList = dventaDao.getBestProducts();
 
         if (dventaList != null) {
-
             for (int i = 0; i < dventaList.size(); i++) {
-                int cantidad = 0;
-                Dventa v = dventaList.get(i);
-                int idInventario = v.getDveIdinventario().getInId();
-                InventarioJpaController inventarioDao = new InventarioJpaController(emf);
-                Inventario in = inventarioDao.findInventario(idInventario);
+                Inventario inv = inventarioDao.findInventario((int) dventaList.get(i)[0]);//                
+                Double c = (Double) dventaList.get(i)[1];
+                int cantidad = c.intValue();
 
-                for (Dventa dv : in.getDventaList()) {
-                    cantidad += dv.getDveCantidad();
-                }
-
-                Map<String, String> dventa = new HashMap<>();
-                dventa.put("descripcion", in.getInDescripcion());
-                dventa.put("departamento", in.getInIddepartamento().getDpDescripcion());
-                dventa.put("cantidad", String.valueOf(cantidad));
-                list.put(i + "", dventa);
+                Map<String, String> dventaMap = new HashMap<>();
+                dventaMap.put("descripcion", inv.getInDescripcion());
+                dventaMap.put("departamento", inv.getInIddepartamento().getDpDescripcion());
+                dventaMap.put("cantidad", String.valueOf(cantidad));
+                list.put(i + "", dventaMap);
             }
         }
         return list;
@@ -191,8 +202,8 @@ public class CtrVentas extends HttpServlet {
                 Double venta = totalVentasDia(day);
                 Double costo = totalCostoDia(day);
                 Double ganancia = venta - costo;
-                ventas.put("v" + i, Util.doubleFormat(venta));
-                utilidad.put("u" + i, Util.doubleFormat(ganancia));
+                ventas.put("v" + i, (venta));
+                utilidad.put("u" + i, (ganancia));
             }
             jsonArray.put(ventas);
             jsonArray.put(utilidad);
@@ -204,7 +215,6 @@ public class CtrVentas extends HttpServlet {
 
     protected JSONArray getVentas(Map<String, String[]> parameters) throws JSONException {
         JSONArray jsonArray = new JSONArray();
-        JSONObject ventas = new JSONObject();
 
         try {
             String range = parameters.get("range")[0];
@@ -224,6 +234,52 @@ public class CtrVentas extends HttpServlet {
         }
 
         return jsonArray;
+    }
+
+    protected JSONArray getDetalleVenta(String idVenta) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+
+        VentaJpaController ventasDao = new VentaJpaController(emf);
+        Venta venta = ventasDao.findVenta(Integer.valueOf(idVenta));
+
+        for (Dventa dventa : venta.getDventaList()) {
+            JSONObject dventaJson = Util.dventaToJSON(dventa);
+            jsonArray.put(dventaJson);
+        }
+
+        return jsonArray;
+    }
+
+    private String deleteVenta(int idVenta) {
+        try {
+            VentaJpaController ventaDao = new VentaJpaController(emf);
+            StockJpaController stockDao = new StockJpaController(emf);
+
+            Venta venta = ventaDao.findVenta(idVenta);
+
+            List<Dventa> listDventa = venta.getDventaList();
+
+            for (Dventa dventa : listDventa) {
+                Inventario inventario = dventa.getDveIdinventario();
+                float cantidadVenta = dventa.getDveCantidad();
+
+                Stock stock = inventario.getStock();
+                float cantidadStock = stock.getStCantidad();
+
+                //Edit Stock
+                stock.setStCantidad(cantidadStock + cantidadVenta);
+                stockDao.edit(stock);
+
+                //Edit inventario
+                inventario.setStock(stock);
+            }
+
+            ventaDao.destroy(idVenta);
+            return SUCCESS;
+
+        } catch (Exception ex) {
+            return ERROR;
+        }
 
     }
 
