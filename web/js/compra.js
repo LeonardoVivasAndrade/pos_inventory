@@ -2,7 +2,7 @@ var listProductosCompra = [];
 
 $(document).ready(function () {
     //detectar si esta desde compra
-    if ((window.location.href).includes("compra")) {
+    if ((window.location.href).includes("crear-compra")) {
         loadProductos();
     }
 });

@@ -160,14 +160,22 @@ public class Util {
         int cantidad = (int) dventa.getDveCantidad();
         Inventario i = dventa.getDveIdinventario();
 
-//        for (Dventa dv : i.getDventaList()) {
-//            cantidad += dv.getDveCantidad();
-//        }
-
         documento.put("descripcion", i.getInDescripcion());
         documento.put("cantidad", cantidad);
         documento.put("departamento", i.getInIddepartamento().getDpDescripcion());
         documento.put("precio", dventa.getDvePreciociva());
+        return documento;
+    }  
+    
+    public static JSONObject dcompraToJSON(Dcompra dcompra) throws JSONException {
+        JSONObject documento = new JSONObject();
+        int cantidad = (int) dcompra.getDcoCantidad();
+        Inventario i = dcompra.getDcoIdinventario();
+
+        documento.put("descripcion", i.getInDescripcion());
+        documento.put("cantidad", cantidad);
+        documento.put("departamento", i.getInIddepartamento().getDpDescripcion());
+        documento.put("costo", dcompra.getDcoCosto());
         return documento;
     }  
     
@@ -184,6 +192,21 @@ public class Util {
         float utilidad = total-costo;
         
         documento.put("utilidad", floatFormat(utilidad));
+        documento.put("total", floatFormat(total));
+        return documento;
+    }
+    
+    public static JSONObject compraToJSON(Compra compra) throws JSONException {
+        JSONObject documento = new JSONObject();        
+
+        documento.put("id", compra.getCoId());
+        documento.put("numero", compra.getCoFactcompra());
+        documento.put("proveedor", compra.getCoIdproveedor().getPrDescripcion());
+        documento.put("fecha", dateToString(compra.getCoFechacompra()));
+        documento.put("cantidad", compra.getCoCantarticulos());
+        
+        float total = compra.getCoCostototal();
+        
         documento.put("total", floatFormat(total));
         return documento;
     }

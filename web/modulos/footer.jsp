@@ -8,7 +8,7 @@
 %>
 
 <footer class="main-footer">
-    <strong>Copyright &copy <%=currentDate%>. Todos los derechos reservados.
+    <strong>Copyright &copy <%=currentDate%>. Todos los derechos reservados. versión 1.0010
         
         -Desarrollado por: <a href="https://www.linkedin.com/in/LeonardoVivasAndrade/" target="_blank">Leonardo Vivas</a>
     </strong>

@@ -7,17 +7,22 @@ import DAO.DcompraJpaController;
 import DAO.StockJpaController;
 import DTO.Compra;
 import DTO.Dcompra;
+import DTO.Inventario;
 import DTO.Stock;
 import Utileria.Util;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class CtrCompras extends HttpServlet {
     
@@ -58,18 +63,28 @@ public class CtrCompras extends HttpServlet {
 
                 break;
             
-            case "getListCompras": {
-//                try {
-//                    Map<String, String[]> parameters = request.getParameterMap();
-////                    response.getWriter().write(getVentas(parameters).toString());
-//                } catch (JSONException ex) {
-//                    Logger.getLogger(CtrVentas.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-            }
+            case "getListCompras": 
+                try {
+                    Map<String, String[]> parameters = request.getParameterMap();
+                    response.getWriter().write(getCompras(parameters).toString());
+                } catch (JSONException ex) {
+                    Logger.getLogger(CtrVentas.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            break;
+            case "getDetalleCompra":
+                try {
+                    String idC = request.getParameter("idCompra");
+                    response.getWriter().write(getDetalleCompra(idC).toString());
+                } catch (JSONException ex) {
+                    Logger.getLogger(CtrVentas.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-            case "deleteVenta":
-//                String delProductoReturn = deleteProducto(Integer.valueOf(idProducto));
-//                response.getWriter().write("{\"result\":\"" + delProductoReturn + "\"}");
+                break;
+
+            case "deleteCompra":
+                String idCompra = request.getParameter("idCompra");
+                String delCompraReturn = deleteCompra(Integer.valueOf(idCompra));
+                response.getWriter().write("{\"result\":\"" + delCompraReturn + "\"}");
                 break;
         }
         
@@ -127,6 +142,76 @@ public class CtrCompras extends HttpServlet {
             return Util.llenarCeros(4, numFacturaNext);
         } else {
             return prefijo + "0001";
+        }
+
+    }
+    
+    protected JSONArray getCompras(Map<String, String[]> parameters) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+
+        try {
+            String range = parameters.get("range")[0];
+            switch (range) {
+                case "default":
+                    CompraJpaController ventasDao = new CompraJpaController(emf);
+                    List<Compra> comprasList = ventasDao.findCompraEntities();
+
+                    for (Compra compra : comprasList) {
+                        JSONObject o = Util.compraToJSON(compra);
+                        jsonArray.put(o);
+                    }
+                    break;
+            }
+
+        } catch (Exception e) {
+        }
+
+        return jsonArray;
+    }
+    
+    protected JSONArray getDetalleCompra(String idCompra) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+
+        CompraJpaController compraDao = new CompraJpaController(emf);
+        Compra compra = compraDao.findCompra(Integer.valueOf(idCompra));
+
+        for (Dcompra dcompra : compra.getDcompraList()) {
+            JSONObject dventaJson = Util.dcompraToJSON(dcompra);
+            jsonArray.put(dventaJson);
+        }
+
+        return jsonArray;
+    }
+    
+    private String deleteCompra(int idCompra) {
+        try {
+            CompraJpaController compraDao = new CompraJpaController(emf);
+            StockJpaController stockDao = new StockJpaController(emf);
+
+            Compra compra = compraDao.findCompra(idCompra);
+
+            List<Dcompra> listDcompra = compra.getDcompraList();
+
+            for (Dcompra dcompra : listDcompra) {
+                Inventario inventario = dcompra.getDcoIdinventario();
+                float cantidadCompra = dcompra.getDcoCantidad();
+
+                Stock stock = inventario.getStock();
+                float cantidadStock = stock.getStCantidad();
+
+                //Edit Stock
+                stock.setStCantidad(cantidadStock - cantidadCompra);
+                stockDao.edit(stock);
+
+                //Edit inventario
+                inventario.setStock(stock);
+            }
+
+            compraDao.destroy(idCompra);
+            return SUCCESS;
+
+        } catch (Exception ex) {
+            return ERROR;
         }
 
     }

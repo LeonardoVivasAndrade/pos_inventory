@@ -6,8 +6,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%  
-//    if(request.getSession().getAttribute("user") == null)
-//        response.sendRedirect("login");
+    if(request.getSession().getAttribute("user") == null)
+        response.sendRedirect("login");
     
 %>
 <!DOCTYPE html>
@@ -146,8 +146,10 @@
             <%@include file="modulos/crear-venta.jsp" %>
             <%} else if (ruta.equals("/ventas")) {%>
             <%@include file="modulos/ventas.jsp" %>
-            <%} else if (ruta.equals("/compra")) {%>
-            <%@include file="modulos/compra.jsp" %>
+            <%} else if (ruta.equals("/crear-compra")) {%>
+            <%@include file="modulos/crear-compra.jsp" %>
+            <%} else if (ruta.equals("/compras")) {%>
+            <%@include file="modulos/compras.jsp" %>
             <%} else {%>
             <%@include file="modulos/404.jsp" %>
             <%}%>
@@ -167,6 +169,7 @@
         <script src="js/venta.js"></script>
         <script src="js/ventas.js"></script>
         <script src="js/compra.js"></script>
+        <script src="js/compras.js"></script>
         <!--<script src="js/reportes.js"></script>-->
 
     </body>

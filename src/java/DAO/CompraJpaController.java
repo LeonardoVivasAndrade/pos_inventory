@@ -227,17 +227,17 @@ public class CompraJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The compra with id " + id + " no longer exists.", enfe);
             }
-            List<String> illegalOrphanMessages = null;
-            List<Dcompra> dcompraListOrphanCheck = compra.getDcompraList();
-            for (Dcompra dcompraListOrphanCheckDcompra : dcompraListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Compra (" + compra + ") cannot be destroyed since the Dcompra " + dcompraListOrphanCheckDcompra + " in its dcompraList field has a non-nullable dcoIdcompra field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
+//            List<String> illegalOrphanMessages = null;
+//            List<Dcompra> dcompraListOrphanCheck = compra.getDcompraList();
+//            for (Dcompra dcompraListOrphanCheckDcompra : dcompraListOrphanCheck) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Compra (" + compra + ") cannot be destroyed since the Dcompra " + dcompraListOrphanCheckDcompra + " in its dcompraList field has a non-nullable dcoIdcompra field.");
+//            }
+//            if (illegalOrphanMessages != null) {
+//                throw new IllegalOrphanException(illegalOrphanMessages);
+//            }
             Proveedor coIdproveedor = compra.getCoIdproveedor();
             if (coIdproveedor != null) {
                 coIdproveedor.getCompraList().remove(compra);

@@ -71,15 +71,14 @@ public class CtrVentas extends HttpServlet {
                 }
             }
             break;
-            case "getListVentas": {
+            case "getListVentas":
                 try {
                     Map<String, String[]> parameters = request.getParameterMap();
                     response.getWriter().write(getVentas(parameters).toString());
                 } catch (JSONException ex) {
                     Logger.getLogger(CtrVentas.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            break;
+                break;
             case "deleteVenta":
                 String idVenta = request.getParameter("idVenta");
                 String delVentaReturn = deleteVenta(Integer.valueOf(idVenta));

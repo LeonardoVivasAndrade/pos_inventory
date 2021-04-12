@@ -56,7 +56,8 @@
         <url-pattern>/productos</url-pattern>
         <url-pattern>/inicio</url-pattern>
         <url-pattern>/crear-venta</url-pattern>
-        <url-pattern>/compra</url-pattern>
+        <url-pattern>/crear-compra</url-pattern>
+        <url-pattern>/compras</url-pattern>
         <url-pattern>/404</url-pattern>
         <url-pattern/>
     </servlet-mapping>

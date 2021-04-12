@@ -1,18 +1,18 @@
-var listVentas = [];
+var listCompras = [];
 
 $(document).ready(function () {
     //detectar si esta desde ventas
-    if ((window.location.href).includes("ventas")) {
-        loadVentas("", "", "default");
+    if ((window.location.href).includes("compras")) {
+        loadCompras("", "", "default");
     }
 });
 
 /*=============================================
- FUNCION CARGAR LISTA DE VENTAS
+    FUNCION CARGAR LISTA DE COMPRAS
  =============================================*/
-function loadVentas(fecha1, fecha2, range) {
+function loadCompras(fecha1, fecha2, range) {
     var params = {
-        option: "getListVentas",
+        option: "getListCompras",
         range: range,
         fechaStart: fecha1,
         fechaEnd: fecha2
@@ -20,33 +20,32 @@ function loadVentas(fecha1, fecha2, range) {
 
 //    showLoader('Cargando ventas');
 
-    $.get("/CtrVentas.do", params, function (responseJson) {
-        listVentas = responseJson;
-        loadVentasTabla();
+    $.get("/CtrCompras.do", params, function (responseJson) {
+        listCompras = responseJson;
+        loadComprasTabla();
     });
 }
 
 
 
 /*=============================================
- CARGAR LA TABLA DINÁMICA DE VENTAS REALIZADAS
+ CARGAR LA TABLA DINÁMICA DE COMPRAS REALIZADAS
  =============================================*/
 
-function loadVentasTabla() {
+function loadComprasTabla() {
 
-    var tabla = $(".tablaVentas").DataTable();
+    var tabla = $(".tablaCompras").DataTable();
     tabla.clear();
-    $.each(listVentas, function (index, v) {
+    $.each(listCompras, function (index, v) {
         //buttons action view and delete
         var botones = '<div class="btn-group">\n\
-                        <div class="tooltipnuevo"><button class="btn btn-primary btnVerVenta" data-toggle="modal" data-target="#modalDetalleVenta" data-toggle="tooltip" title="Ver Factura" numeroVenta="' + v.numero + '" idVenta="' + v.id + '"><i class="fa fa-eye"></i></button><span class="tooltiptext">Ver Factura</span></div>\n\
-                        <div class="tooltipnuevo"><button class="btn btn-danger btnEliminarVenta" data-toggle="tooltip" title="Eliminar Factura"  idVenta="' + v.id + '"><i class="fa fa-times"></i></button><span class="tooltiptext">Anular Factura</span></div></div>';
+                        <div class="tooltipnuevo"><button class="btn btn-primary btnVerCompra" data-toggle="modal" data-target="#modalDetalleCompra" data-toggle="tooltip" title="Ver Compra" numeroCompra="' + v.numero + '" idCompra="' + v.id + '"><i class="fa fa-eye"></i></button><span class="tooltiptext">Ver Compra</span></div>\n\
+                        <div class="tooltipnuevo"><button class="btn btn-danger btnEliminarCompra" data-toggle="tooltip" title="Eliminar Compra"  idCompra="' + v.id + '"><i class="fa fa-times"></i></button><span class="tooltiptext">Anular Compra</span></div></div>';
 
         tabla.row.add([
             v.numero,
             v.fecha,
             v.cantidad,
-            v.utilidad.toLocaleString("de-DE"),
             v.total.toLocaleString("de-DE"),
             botones
         ]).draw(false);
@@ -58,87 +57,87 @@ function loadVentasTabla() {
 //    }, 1000);
 }
 
-function deleteVenta(idVenta) {
+function deleteCompra(idCompra) {
 
     var params = {
-        option: "deleteVenta",
-        idVenta: idVenta
+        option: "deleteCompra",
+        idCompra: idCompra
     };
 
-    $.get("/CtrVentas.do", params, function (response) {
-        var indexPage = $('.tablaVentas').DataTable().page();
+    $.get("/CtrCompras.do", params, function (response) {
+        var indexPage = $('.tablaCompras').DataTable().page();
 
         if (response.result === "success") {
-            var id = Number(idVenta);
-            var o = listVentas.find(result => result.idProducto === id); //extrae el objeto con el argumento idVenta
-            var index = listVentas.indexOf(o); //busca el indice del objeto en el array
-            listVentas.splice(index, 1); //elimina el objeto del array
+            var id = Number(idCompra);
+            var o = listCompras.find(result => result.idProducto === id); //extrae el objeto con el argumento idVenta
+            var index = listCompras.indexOf(o); //busca el indice del objeto en el array
+            listCompras.splice(index, 1); //elimina el objeto del array
 
-            alertBottomEnd("Venta eliminada con éxito!", response.result);
-            loadVentasTabla(); //redibuja la tabla
+            alertBottomEnd("Compra eliminada con éxito!", response.result);
+            loadComprasTabla(); //redibuja la tabla
         } else if (response.result === "error") {
-            alertBottomEnd("No se pudo eliminar la venta!", response.result);
+            alertBottomEnd("No se pudo eliminar la compra!", response.result);
         } else if (response.result === "warning") {
-            alertBottomEnd("No se pudo eliminar la venta!", response.result);
+            alertBottomEnd("No se pudo eliminar la compra!", response.result);
         }
 
         //Se ubica en la pagina de la tabla donde estaba
-        $('.tablaVentas').DataTable().page(indexPage).draw('page');
+        $('.tablaCompras').DataTable().page(indexPage).draw('page');
     });
 }
 
 /*=============================================
- BORRAR VENTA
+ BORRAR COMPRA
  =============================================*/
-$(".tablas").on("click", ".btnEliminarVenta", function () {
+$(".tablas").on("click", ".btnEliminarCompra", function () {
 
-    var idVenta = $(this).attr("idVenta");
+    var idCompra = $(this).attr("idCompra");
 
     Swal.fire({
-        title: '¿Está seguro de anular la venta?',
+        title: '¿Está seguro de anular la compra?',
         text: "¡Si no lo está puede cancelar la accíón!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         cancelButtonText: 'Cancelar',
-        confirmButtonText: 'Si, anular venta!'
+        confirmButtonText: 'Si, anular compra!'
     }).then((result) => {
         if (result.value)
-            deleteVenta(idVenta);
+            deleteCompra(idCompra);
     });
 
 });
 
 /*=============================================
- VER VENTA
+ VER COMPRA
  =============================================*/
-$(".tablas").on("click", ".btnVerVenta", function () {
-    document.getElementsByClassName("productoDetalleVenta")[0].innerHTML = "<strong><h4>Productos vendidos</h4></strong>";
+$(".tablas").on("click", ".btnVerCompra", function () {
+    document.getElementsByClassName("productoDetalleCompra")[0].innerHTML = "<strong><h4>Productos vendidos</h4></strong>";
 
-    var idVenta = $(this).attr("idVenta");
-    var numeroVenta = $(this).attr("numeroVenta");
+    var idCompra = $(this).attr("idCompra");
+    var numeroCompra = $(this).attr("numeroCompra");
 
-    $("#titleModalDetalleVenta").text("Detalle de venta #" + numeroVenta);
+    $("#titleModalDetalleCompra").text("Detalle de compra #" + numeroCompra);
 
     var params = {
-        option: "getDetalleVenta",
-        idVenta: idVenta
+        option: "getDetalleCompra",
+        idCompra: idCompra
     };
 
 
-    $.get("/CtrVentas.do", params, function (responseJson) {
+    $.get("/CtrCompras.do", params, function (responseJson) {
         var listProd = responseJson;
         var total = 0;
 
         $.each(listProd, function (index, p) {
             
-            var precio = new Intl.NumberFormat('de-DE').format(p.precio);
+            var costo = new Intl.NumberFormat('de-DE').format(p.costo);
             
-            total += p.precio;
+            total += p.costo;
            
 
-            $(".productoDetalleVenta").append(
+            $(".productoDetalleCompra").append(
                     '<div class="row" style="padding:5px 15px">' +
                     '<!-- Descripción del producto -->' +
                     '<div class="col-xs-7" style="padding-right:0px">' +
@@ -154,7 +153,7 @@ $(".tablas").on("click", ".btnVerVenta", function () {
                     '<div class="col-xs-3" style="padding-left:0px">' +
                     '<div class="input-group">' +
                     '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
-                    '<input type="text" class="form-control" value="' + precio + '" readonly>' +
+                    '<input type="text" class="form-control" value="' + costo + '" readonly>' +
                     '</div>' +
                     '</div>' +
                     '</div>');
@@ -162,7 +161,7 @@ $(".tablas").on("click", ".btnVerVenta", function () {
         });
         
         var totalFormated = new Intl.NumberFormat('de-DE').format(total);
-        $(".productoDetalleVenta").append("<strong><h4>Total Venta: $ "+totalFormated+"</h4></strong>");
+        $(".productoDetalleCompra").append("<strong><h4>Total Compra: $ "+totalFormated+"</h4></strong>");
     });
 });
 

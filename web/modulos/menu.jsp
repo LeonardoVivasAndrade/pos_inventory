@@ -26,7 +26,7 @@
 
             </li>
             <li  class='li-sidebar'>
-                <a href="compra">
+                <a href="crear-compra">
                     <i class="fa fa-credit-card-alt"></i>
                     <span>Compra Mercancia</span>
                 </a>
@@ -57,12 +57,12 @@
                             <span>Consultar ventas</span>
                         </a>
                     </li>
-<!--                    <li>
-                        <a href="#">
+                    <li>
+                        <a href="compras">
                             <i class="fa fa-circle-o"></i>
-                            <span>Reporte ventas</span>
+                            <span>Consultar compras</span>
                         </a>
-                    </li>-->
+                    </li>
 
                     <!--si es administrador-->
 

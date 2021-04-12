@@ -18,14 +18,23 @@ $(document).ready(function () {
  =============================================*/
 $(".nuevaCategoriaSelect").change(function () {
     var index = $(".nuevaCategoriaSelect").index($(this));
-    validarSelect(index);
-
     var idCategoria = $(this).val();
 
     if (idCategoria == -1) {
         $("#modalAgregarCategoria").modal('show');
         loadCategoriasSelect(index);
+    } else {
+        var respuesta = validarSelect(index);
+
+        if (respuesta === "" && allInputsValidos(index)) {
+            $(".errorInputSelect").text("");
+            $(".submit-prod").prop("disabled", false);
+        } else {
+            $(".errorInputSelect").text(respuesta);
+            $(".submit-prod").prop("disabled", true);
+        }
     }
+
 });
 
 /*=============================================
@@ -176,12 +185,6 @@ function calcularPorcentaje(index) {
  =============================================*/
 function addProducto() {
 
-    if (!validarSelect(0)) {
-        alertBottomEnd("Seleccionar una categoria", 'warning');
-        return;
-    }
-
-
     var params = {
         option: "prodAdd",
         idCategoria: $('.nuevaCategoriaSelect option:selected').eq(0).attr('id'),
@@ -229,10 +232,6 @@ function llenarInputsEditProducto(idProducto) {
 
 function editProducto() {
     var idProducto = localStorage.getItem("idProductoToEdit");
-    if (!validarSelect(1)) {
-        alertBottomEnd("Seleccionar una categoria", 'warning');
-        return;
-    }
 
     var params = {
         option: "prodEdit",
@@ -311,13 +310,13 @@ function loadProductos() {
         option: "getListProducts",
         idProducto: 0
     };
-    
+
     showLoader('Cargando productos');
 
     $.get("/CtrProductos.do", params, function (responseJson) {
         listProductos = responseJson;
         if ((window.location.href).includes("productos")) {
-            loadProductsTable();            
+            loadProductsTable();
         }
         if ((window.location.href).includes("venta")) {
             loadProductosVenta();
@@ -325,7 +324,7 @@ function loadProductos() {
         if ((window.location.href).includes("compra")) {
             loadProductosCompra();
         }
-        
+
     });
 }
 
@@ -363,11 +362,11 @@ function loadProductsTable() {
         ]).draw(false);
     });
     tabla.order([2, 'asc']).draw();
-    
+
     setTimeout(() => {
         closeLoader();
     }, 1000);
-    
+
 }
 
 /*=============================================
@@ -510,20 +509,19 @@ function calcularPrecioFromPorcentaje(o, index) {
 
 function allInputsValidos(index) {
     var result = validarDescripcion(index) === "" && validarCantidad(index) === "" &&
-            validarInputCosto() === "" && validarInputPrecio() === "";
+            validarInputCosto(index) === "" && validarInputPrecio(index) === "" &&
+            validarSelect(index) === "";
 
     return result;
 }
 
 function validarSelect(index) {
-    var idSelect = $('.nuevaCategoriaSelect option:selected').eq(index).attr('id');
 
+    var idSelect = $('.nuevaCategoriaSelect option:selected').eq(index).attr('id');
     if (idSelect === -2 || idSelect == undefined) {
-        $(".errorInputSelect").text("Seleccionar una categoria!");
-        return false;
+        return "Seleccionar una categoria!";
     } else {
-        $(".errorInputSelect").text("");
-        return true;
+        return "";
     }
 }
 
@@ -543,6 +541,8 @@ function clearInputsModal() {
 
     $(".porcentaje").eq(1).prop("checked", false);
     $(".porcentaje").eq(1).parent().removeClass('checked');
+
+    $(".submit-prod").prop("disabled", true);
 }
 
 
