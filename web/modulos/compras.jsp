@@ -23,7 +23,7 @@
             <section class="content">
                 <div class="box">
                     <div class="box-header with-border">  
-                        <a href="compra">
+                        <a href="crear-compra">
                             <button class="btn btn-primary">            
                                 Nueva Compra
                             </button>

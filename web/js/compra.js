@@ -37,25 +37,115 @@ function existCompra() {
 
 function loadProductosCompra() {
 
-    var tabla = $(".tablaCompra").DataTable();
-    tabla.clear();
     $.each(listProductos, function (index, p) {
 
         //button stock
         var btnCantidad = "<button class='btn btn-success'>" + p.existencia + "</button>";
 
         //button action add
-        var boton = "<div class='btn-group'><button class='btn btn-danger agregarProducto recuperarBoton' idProducto='" + p.idProducto + "'>+</button></div>";
+        var botonAdd = "<div class='btn-group'><button class='btn btn-danger agregarProducto recuperarBoton' idProducto='" + p.idProducto + "'>+</button></div>";
 
-        tabla.row.add([
-            p.descripcion,
-            p.costo.toLocaleString("de-DE"),
-            btnCantidad,
-            boton
-        ]).draw(false);
+        listProductos[index].botonAdd = botonAdd;
+        listProductos[index].btnCantidad = btnCantidad;
+    });
+
+    $(".tablaCompra").DataTable().destroy();
+
+    $(".tablaCompra").DataTable({
+        data: listProductos,
+        columns: [
+            {data: 'descripcion'},
+            {data: 'costo',
+            render: $.fn.dataTable.render.number( '.', ',', 0, '$' )},
+            {data: 'btnCantidad'},
+            {data: 'botonAdd'}
+        ],
+        order: [0, 'asc'],
+        "language": {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+
+    /*=============================================
+     AGREGANDO PRODUCTOS A LA COMPRA DESDE LA TABLA
+     =============================================*/
+    $(".tablaCompra tbody").on("click", "button.agregarProducto", function () {
+        var idProducto = $(this).attr("idProducto");
+        //busca el objeto producto
+        var id = Number(idProducto);
+        var o = listProductos.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
+
+        var descripcion = o.descripcion;
+        var costo = o.costo;
+        var stock = o.existencia;
+
+
+        $(this).removeClass("btn-danger agregarProducto");
+        $(this).addClass("btn-default");
+
+        o.cantidad = 1;
+        listProductosCompra.push(o);
+
+        //dibuja elementos del producto agregado a la compra
+        $(".nuevoProducto").append(
+                '<div class="row" style="padding:5px 15px">' +
+                '<!-- Descripción del producto -->' +
+                '<div class="col-xs-7" style="padding-right:0px">' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon input-sm"><button type="button" onclick="borrarProductoCompra(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
+                '<input type="text" class="form-control nuevaDescripcionProducto" name="agregarProducto" value="' + descripcion + '" readonly required>' +
+                '</div>' +
+                '</div>' +
+                '<!-- Cantidad del producto -->' +
+                '<div class="col-xs-2">' +
+                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultCompra(this)" min="1" value="1" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+                '</div>' +
+                '<!-- Precio del producto -->' +
+                '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
+                '<input type="text" class="form-control nuevoCostoProducto" oninput="modificarCostoItem(this)" precioReal="' + costo + '" idProducto="' + idProducto + '" name="nuevoCostoProducto" value="' + costo + '" required>' +
+                '</div>' +
+                '</div>' +
+                '</div>');
+
+
+        // SUMAR TOTAL DE COSTOS
+        sumarTotalCostos();
+
+        // PONER FORMATO DE MILES 
+        $(".nuevoCostoProducto").number(true, 0);
+        $("#nuevoTotalCompra").number(true, 0);
+
+        //guardando el localStorage
+        var tmpListCompraJSON = JSON.stringify(listProductosCompra);
+        localStorage.setItem('listProductosCompra', tmpListCompraJSON);
+
+        //activa el boton totalizar
+        $("#btnTotalizar").prop("disabled", false);
 
     });
-    tabla.order([0, 'asc']).draw();
 
     //busca el siguiente numero de factura
     loadNewNumCompra();
@@ -65,67 +155,6 @@ function loadProductosCompra() {
         existCompra();
     }, 1000);
 }
-
-/*=============================================
- AGREGANDO PRODUCTOS A LA COMPRA DESDE LA TABLA
- =============================================*/
-$(".tablaCompra tbody").on("click", "button.agregarProducto", function () {
-    var idProducto = $(this).attr("idProducto");
-    //busca el objeto producto
-    var id = Number(idProducto);
-    var o = listProductos.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
-
-    var descripcion = o.descripcion;
-    var costo = Number(o.costo).toFixed(0);
-    var stock = o.existencia;
-
-
-    $(this).removeClass("btn-danger agregarProducto");
-    $(this).addClass("btn-default");
-
-    o.cantidad = 1;
-    listProductosCompra.push(o);
-
-    //dibuja elementos del producto agregado a la compra
-    $(".nuevoProducto").append(
-            '<div class="row" style="padding:5px 15px">' +
-            '<!-- Descripción del producto -->' +
-            '<div class="col-xs-7" style="padding-right:0px">' +
-            '<div class="input-group">' +
-            '<span class="input-group-addon"><button type="button" onclick="borrarProductoCompra(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
-            '<input type="text" class="form-control nuevaDescripcionProducto" name="agregarProducto" value="' + descripcion + '" readonly required>' +
-            '</div>' +
-            '</div>' +
-            '<!-- Cantidad del producto -->' +
-            '<div class="col-xs-2">' +
-            '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefault(this)" min="1" value="1" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
-            '</div>' +
-            '<!-- Precio del producto -->' +
-            '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
-            '<div class="input-group">' +
-            '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
-            '<input type="text" class="form-control nuevoCostoProducto" oninput="modificarCostoItem(this)" precioReal="' + costo + '" idProducto="' + idProducto + '" name="nuevoCostoProducto" value="' + costo + '" required>' +
-            '</div>' +
-            '</div>' +
-            '</div>');
-
-
-    // SUMAR TOTAL DE COSTOS
-    sumarTotalCostos();
-
-    // PONER FORMATO DE MILES 
-    $(".nuevoCostoProducto").number(true, 0);
-    $("#nuevoTotalCompra").number(true, 0);
-
-    //guardando el localStorage
-    var tmpListCompraJSON = JSON.stringify(listProductosCompra);
-    localStorage.setItem('listProductosCompra', tmpListCompraJSON);
-
-    //activa el boton totalizar
-    $("#btnTotalizar").prop("disabled", false);
-
-});
-
 
 /*=============================================
  QUITAR PRODUCTOS DE LA COMPRA Y RECUPERAR BOTÓN
@@ -204,7 +233,7 @@ function modificarCostoItem(e) {
 
 }
 
-function setCantidadDefault(e) {
+function setCantidadDefaultCompra(e) {
     var nuevaCantidad = e.value;
 
     if (nuevaCantidad == "") {
@@ -257,7 +286,7 @@ function setCostoDefault(e) {
 function sumarTotalCostos() {
     var sumaTotalCosto = 0;
     $.each(listProductosCompra, function (index, p) {
-        var costo = p.costo;
+        var costo = replaceAllCompra(p.costo,",","");
         var cantidad = p.cantidad;
         sumaTotalCosto += costo * cantidad;
     });
@@ -287,7 +316,7 @@ function drawItemCompra(e) {
     var o = listProductosCompra.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
 
     var descripcion = o.descripcion;
-    var costo = Number(o.costo).toFixed(0);
+    var costo = o.costo;
     var stock = o.existencia;
     var cantidad = o.cantidad;
 
@@ -301,13 +330,13 @@ function drawItemCompra(e) {
             '<!-- Descripción del producto -->' +
             '<div class="col-xs-7" style="padding-right:0px">' +
             '<div class="input-group">' +
-            '<span class="input-group-addon"><button type="button" onclick="borrarProductoCompra(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
+            '<span class="input-group-addon input-sm"><button type="button" onclick="borrarProductoCompra(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
             '<input type="text" class="form-control nuevaDescripcionProducto" name="agregarProducto" value="' + descripcion + '" readonly required>' +
             '</div>' +
             '</div>' +
             '<!-- Cantidad del producto -->' +
             '<div class="col-xs-2">' +
-            '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefault(this)" min="1" value="' + cantidad + '" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+            '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultCompra(this)" min="1" value="' + cantidad + '" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
             '</div>' +
             '<!-- Precio del producto -->' +
             '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
@@ -355,8 +384,7 @@ function totalizarCompra() {
     //Response con parametro result (SUCCESS,ERROR, WARNING)
     $.get("/CtrCompras.do", params, function (response) {
         if (response.result === "success") {
-
-
+            
             //actualiza existencia listProdcutos
             $.each(listProductosCompra, function (index, p) {
 
@@ -370,18 +398,18 @@ function totalizarCompra() {
 
             clearListProductosCompra();
             $('.nuevoProducto').empty();
-            loadProductosCompra();
-            sumarTotalCostos();
-            loadNewNumCompra();
-            closeLoader();
-
-            alertBottomEnd("Compra realizada con exito!", response.result);
 
         } else if (response.result === "warning") {
             alertBottomEnd("No se pudo realizar la compra!", response.result);
         } else if (response.result === "error") {
             alertBottomEnd("No se pudo realizar la compra!", response.result);
         }
+    }).done(function () {
+        closeLoader();
+        alertBottomEnd("Compra realizada con exito!", "success");
+        setTimeout(() => {
+            window.location.href = "crear-compra";
+        }, 500);
     }).fail(function () {
         closeLoader();
         alertBottomEnd("No se pudo realizar la compra!", "error");

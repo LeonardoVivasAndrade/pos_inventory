@@ -110,7 +110,7 @@ public class CtrProductos extends HttpServlet {
             boolean existCompras = !producto.getDcompraList().isEmpty();
             boolean existVentas = !producto.getDventaList().isEmpty();
 
-            if (existCompras || existVentas) {
+            if (existCompras || existVentas ) {
                 return ERROR_INTEGRITY;
             } else {
 
@@ -141,6 +141,9 @@ public class CtrProductos extends HttpServlet {
             float cantidad = Float.valueOf(datos.get("cantidad")[0]);
 
             Departamento departamento = departamentoDao.findDepartamento(idDepartamento);
+            
+            if(departamento.getDpIsservice())
+                cantidad = 1;
 
             Stock stock = stockDao.findStock(idProducto);
             stock.setStCantidad(cantidad);
@@ -199,6 +202,9 @@ public class CtrProductos extends HttpServlet {
 
             //stock create
             float newCantidad = Integer.valueOf(datos.get("cantidad")[0]);
+            if(producto.getInIddepartamento().getDpIsservice())
+                newCantidad = 1;
+            
             Stock newStock = new Stock();
             newStock.setInventario(producto);
             newStock.setStIdinventario(producto.getInId());

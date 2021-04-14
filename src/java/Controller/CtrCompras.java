@@ -4,6 +4,7 @@ package Controller;
 import DAO.CompraJpaController;
 import DAO.Conexion;
 import DAO.DcompraJpaController;
+import DAO.InventarioJpaController;
 import DAO.StockJpaController;
 import DTO.Compra;
 import DTO.Dcompra;
@@ -172,7 +173,7 @@ public class CtrCompras extends HttpServlet {
     protected JSONArray getDetalleCompra(String idCompra) throws JSONException {
         JSONArray jsonArray = new JSONArray();
 
-        CompraJpaController compraDao = new CompraJpaController(emf);
+        CompraJpaController compraDao = new CompraJpaController(emf);        
         Compra compra = compraDao.findCompra(Integer.valueOf(idCompra));
 
         for (Dcompra dcompra : compra.getDcompraList()) {
@@ -187,6 +188,7 @@ public class CtrCompras extends HttpServlet {
         try {
             CompraJpaController compraDao = new CompraJpaController(emf);
             StockJpaController stockDao = new StockJpaController(emf);
+            InventarioJpaController inventarioDao = new InventarioJpaController(emf);
 
             Compra compra = compraDao.findCompra(idCompra);
 
@@ -204,7 +206,7 @@ public class CtrCompras extends HttpServlet {
                 stockDao.edit(stock);
 
                 //Edit inventario
-                inventario.setStock(stock);
+                inventario.setStock(stock);       
             }
 
             compraDao.destroy(idCompra);

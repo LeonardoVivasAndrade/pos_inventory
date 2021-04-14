@@ -49,11 +49,9 @@ public class Util {
             documento.put("existencia", inventario.getStock().getStCantidad());        
         else
             documento.put("existencia", 0);        
-        documento.put("imagen", inventario.getInImage());
         documento.put("costo", inventario.getInCosto());
         documento.put("precio", inventario.getInPrecioCiva());
         documento.put("utilidad", inventario.getInPrecioCiva() - inventario.getInCosto());
-        documento.put("fechaCreacion", dateToString(inventario.getInFechacreacion()));
         return documento;
     }
 

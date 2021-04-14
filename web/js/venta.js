@@ -37,8 +37,6 @@ function existVenta() {
 
 function loadProductosVenta() {
 
-    var tabla = $(".tablaVenta").DataTable();
-    tabla.clear();
     $.each(listProductos, function (index, p) {
 
         //button stock
@@ -47,17 +45,114 @@ function loadProductosVenta() {
             btnCantidad = "<button class='btn btn-success'>" + p.existencia + "</button>";
 
         //button action add
-        var boton = "<div class='btn-group'><button class='btn btn-primary agregarProducto recuperarBoton' idProducto='" + p.idProducto + "'>+</button></div>";
+        var botonAdd = "<div class='btn-group'><button class='btn btn-primary agregarProducto recuperarBoton' idProducto='" + p.idProducto + "'>+</button></div>";
 
-        tabla.row.add([
-            p.descripcion,
-            p.precio.toLocaleString("de-DE"),
-            btnCantidad,
-            boton
-        ]).draw(false);
-
+        listProductos[index].botonAdd = botonAdd;
+        listProductos[index].btnCantidad = btnCantidad;
     });
-    tabla.order([0, 'asc']).draw();
+
+    $(".tablaVenta").DataTable().destroy();
+
+    $(".tablaVenta").DataTable({
+        data: listProductos,
+        columns: [
+            {data: 'descripcion'},
+            {data: 'precio',
+            render: $.fn.dataTable.render.number( '.', ',', 0, '$' )},
+            {data: 'btnCantidad'},
+            {data: 'botonAdd'}
+        ],
+        order: [0, 'asc'],
+        "language": {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+
+
+    /*=============================================
+     AGREGANDO PRODUCTOS A LA VENTA DESDE LA TABLA
+     =============================================*/
+    $('.tablaVenta tbody').on('click', 'button.agregarProducto', function () {
+        var idProducto = $(this).attr('idProducto');
+        //busca el objeto producto
+        var id = Number(idProducto);
+        var o = listProductos.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
+
+        var descripcion = o.descripcion;
+        var precio = o.precio;
+        var stock = o.existencia;
+
+        //verifica que exista cantidades disponibes
+        if (stock <= 0) {
+            alertBottomEnd('Producto sin existencia!', 'error');
+            return;
+        } else {
+            $(this).removeClass("btn-primary agregarProducto");
+            $(this).addClass("btn-default");
+
+            o.cantidad = 1;
+            listProductosVenta.push(o);
+            
+            precio = precio.toLocaleString("de-DE");
+
+            //dibuja elementos del producto agregado a la venta
+            $(".nuevoProducto").append(
+                    '<div class="row" style="padding:5px 15px">' +
+                    '<!-- Descripción del producto -->' +
+                    '<div class="col-xs-7" style="padding-right:0px">' +
+                    '<div class="input-group">' +
+                    '<span class="input-group-addon input-sm"><button type="button" onclick="borrarProductoVenta(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
+                    '<input type="text" class="form-control nuevaDescripcionProducto" name="agregarProducto" value="' + descripcion + '" readonly required>' +
+                    '</div>' +
+                    '</div>' +
+                    '<!-- Cantidad del producto -->' +
+                    '<div class="col-xs-2">' +
+                    '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultVenta(this)" min="1" value="1" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+                    '</div>' +
+                    '<!-- Precio del producto -->' +
+                    '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
+                    '<div class="input-group">' +
+                    '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
+                    '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precio + '" required>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>');
+
+
+            // SUMAR TOTAL DE PRECIOS
+            sumarTotalPrecios();
+
+
+            //guardando el localStorage
+            var tmpListVentaJSON = JSON.stringify(listProductosVenta);
+            localStorage.setItem('listProductosVenta', tmpListVentaJSON);
+
+            //activa el boton totalizar
+            $("#btnTotalizar").prop("disabled", false);
+        }
+    });
+
 
     //busca el siguiente numero de factura
     loadNewNumFactura();
@@ -67,69 +162,6 @@ function loadProductosVenta() {
         existVenta();
     }, 1000);
 }
-
-/*=============================================
- AGREGANDO PRODUCTOS A LA VENTA DESDE LA TABLA
- =============================================*/
-$(".tablaVenta tbody").on("click", "button.agregarProducto", function () {
-    var idProducto = $(this).attr("idProducto");
-    //busca el objeto producto
-    var id = Number(idProducto);
-    var o = listProductos.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
-
-    var descripcion = o.descripcion;
-    var precio = o.precio;
-    var stock = o.existencia;
-    
-    var precioformat = new Intl.NumberFormat('de-DE').format(precio);
-
-    //verifica que exista cantidades disponibes
-    if (stock <= 0) {
-        alertBottomEnd('Producto sin existencia!', 'error');
-        return;
-    } else {
-        $(this).removeClass("btn-primary agregarProducto");
-        $(this).addClass("btn-default");
-
-        o.cantidad = 1;
-        listProductosVenta.push(o);
-
-        //dibuja elementos del producto agregado a la venta
-        $(".nuevoProducto").append(
-                '<div class="row" style="padding:5px 15px">' +
-                '<!-- Descripción del producto -->' +
-                '<div class="col-xs-7" style="padding-right:0px">' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon"><button type="button" onclick="borrarProductoVenta(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
-                '<input type="text" class="form-control nuevaDescripcionProducto" name="agregarProducto" value="' + descripcion + '" readonly required>' +
-                '</div>' +
-                '</div>' +
-                '<!-- Cantidad del producto -->' +
-                '<div class="col-xs-2">' +
-                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefault(this)" min="1" value="1" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
-                '</div>' +
-                '<!-- Precio del producto -->' +
-                '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
-                '<div class="input-group">' +
-                '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
-                '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precioformat + '" required>' +
-                '</div>' +
-                '</div>' +
-                '</div>');
-
-
-        // SUMAR TOTAL DE PRECIOS
-        sumarTotalPrecios();
-
-
-        //guardando el localStorage
-        var tmpListVentaJSON = JSON.stringify(listProductosVenta);
-        localStorage.setItem('listProductosVenta', tmpListVentaJSON);
-
-        //activa el boton totalizar
-        $("#btnTotalizar").prop("disabled", false);
-    }
-});
 
 
 /*=============================================
@@ -151,8 +183,6 @@ function borrarProductoVenta(e) {
     $("button.recuperarBoton[idProducto='" + idProducto + "']").addClass('btn-primary agregarProducto');
 
     sumarTotalPrecios();
-
-//    $("#nuevoTotalVenta").number(true, 0);
 
     //guardando el localStorage
     var tmpListVentaJSON = JSON.stringify(listProductosVenta);
@@ -180,7 +210,7 @@ function modificarCantidadItem(e) {
 
     var nuevaCantidad = Number(e.value);
 
-    if (existencia < nuevaCantidad) {
+    if (existencia < nuevaCantidad && o.categoria !== "SERVICIO") {
         $(e).val(existencia);
         alertBottomEnd("La cantidad supera la existencia disponible!", "warning");
     } else {
@@ -215,13 +245,13 @@ function modificarPrecioItem(e) {
         localStorage.setItem('listProductosVenta', tmpListVentaJSON);
         sumarTotalPrecios();
         calcularCambio();
-        var nuevoValor = new Intl.NumberFormat('de-DE').format(val);        
+        var nuevoValor = new Intl.NumberFormat('de-DE').format(val);
         $(e).val(nuevoValor);
     }
 
 }
 
-function setCantidadDefault(e) {
+function setCantidadDefaultVenta(e) {
     var nuevaCantidad = e.value;
 
     if (nuevaCantidad == "") {
@@ -276,15 +306,15 @@ function setPrecioDefault(e) {
 function sumarTotalPrecios() {
     var sumaTotalPrecio = 0;
     $.each(listProductosVenta, function (index, p) {
-        var precio = p.precio;
+        var precio = replaceAll(p.precio, ".", "");
         var cantidad = p.cantidad;
         sumaTotalPrecio += precio * cantidad;
     });
-    
+
     //formato miles
     var totalformat = new Intl.NumberFormat('de-DE').format(sumaTotalPrecio);
     $("#nuevoTotalVenta").val(totalformat);
-    
+
     //formato miles
     var efectivoformat = new Intl.NumberFormat('de-DE').format(sumaTotalPrecio);
     $("#nuevoValorEfectivo").val(efectivoformat);
@@ -304,11 +334,11 @@ function calcularCambio() {
     var totalVenta = $('#nuevoTotalVenta').val();
     var totalVentaUnformat = replaceAll(totalVenta, '.', '');
     var cambio = efectivo - totalVentaUnformat;
-    
+
     //formato miles
     var cambioformat = new Intl.NumberFormat('de-DE').format(cambio);
     $("#nuevoCambioEfectivo").val(cambioformat);
-    
+
     var efectivoformat = new Intl.NumberFormat('de-DE').format(val1);
     $("#nuevoValorEfectivo").val(efectivoformat);
 }
@@ -335,8 +365,6 @@ function drawItemVenta(e) {
     var precio = o.precio;
     var stock = o.existencia;
     var cantidad = o.cantidad;
-    
-    var precioformat = new Intl.NumberFormat('de-DE').format(precio);
 
     //verifica que exista cantidades disponibes
     if (stock <= 0) {
@@ -345,6 +373,8 @@ function drawItemVenta(e) {
     } else {
         $(e).removeClass("btn-primary agregarProducto");
         $(e).addClass("btn-default");
+        
+        precio = precio.toLocaleString("de-DE");
 
         //dibuja elementos del producto agregado a la venta
         $(".nuevoProducto").append(
@@ -352,19 +382,19 @@ function drawItemVenta(e) {
                 '<!-- Descripción del producto -->' +
                 '<div class="col-xs-7" style="padding-right:0px">' +
                 '<div class="input-group">' +
-                '<span class="input-group-addon"><button type="button" onclick="borrarProductoVenta(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
+                '<span class="input-group-addon input-sm"><button type="button" onclick="borrarProductoVenta(this)" class="btn btn-danger btn-xs" idProducto="' + idProducto + '"><i class="fa fa-times"></i></button></span>' +
                 '<input type="text" class="form-control nuevaDescripcionProducto" name="agregarProducto" value="' + descripcion + '" readonly required>' +
                 '</div>' +
                 '</div>' +
                 '<!-- Cantidad del producto -->' +
                 '<div class="col-xs-2">' +
-                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefault(this)" min="1" value="' + cantidad + '" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultVenta(this)" min="1" value="' + cantidad + '" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
                 '</div>' +
                 '<!-- Precio del producto -->' +
                 '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
                 '<div class="input-group">' +
                 '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
-                '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" onblur="setPrecioDefault(this)" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precioformat + '" required>' +
+                '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" onblur="setPrecioDefault(this)" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precio + '" required>' +
                 '</div>' +
                 '</div>' +
                 '</div>');
@@ -372,10 +402,6 @@ function drawItemVenta(e) {
 
         // SUMAR TOTAL DE PRECIOS
         sumarTotalPrecios();
-
-        // PONER FORMATO DE MILES 
-//        var precioformat = new Intl.NumberFormat('de-DE').format(precio);
-//        $(this).val(precioformat);  
     }
 }
 
@@ -422,9 +448,6 @@ function totalizarVenta() {
 
             clearListProductosVenta();
             $('.nuevoProducto').empty();
-            loadProductosVenta();
-            sumarTotalPrecios();
-            loadNewNumFactura();
 
         } else if (response.result === "warning") {
             alertBottomEnd("No se pudo realizar la venta!", response.result);
@@ -434,6 +457,10 @@ function totalizarVenta() {
     }).done(function () {
         closeLoader();
         alertBottomEnd("Venta realizada con exito!", "success");
+        setTimeout(() => {
+            window.location.href = "crear-venta";
+        }, 500);
+
     }).fail(function () {
         closeLoader();
         alertBottomEnd("Error interno, Reiniciar sistema!", "error");

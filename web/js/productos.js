@@ -8,7 +8,6 @@ $(document).ready(function () {
     if ((window.location.href).includes("productos")) {
         loadCategorias();
         loadProductos();
-//        loadProductsTable();        
     }
 });
 
@@ -53,50 +52,29 @@ $(".btnAgregarProducto").click(function () {
 });
 
 /*=============================================
- EVENTO EDITAR PRODUCTO
- =============================================*/
-$(".tablaProductos tbody").on("click", "button.btnEditarProducto", function () {
-    loadCategoriasSelect(1); //1, select del modal editar
-    var id = $(this).attr('idProducto');
-    llenarInputsEditProducto(id);
-});
-
-/*=============================================
- EVENTO ELIMINAR PRODUCTO
- =============================================*/
-$(".tablaProductos tbody").on("click", "button.btnEliminarProducto", function () {
-
-    var idProducto = $(this).attr("idProducto");
-
-    Swal.fire({
-        title: '¿Está seguro de borrar el producto?',
-        text: "¡Si no lo está puede cancelar la accíón!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        cancelButtonText: 'Cancelar',
-        confirmButtonText: 'Si, borrar producto!'
-    }).then((result) => {
-        if (result.value)
-            deleteProducto(idProducto);
-    });
-});
-
-/*=============================================
  EVENTOS INPUTS MODAL AGREGAR PRODUCTO
  =============================================*/
 $(".nuevoPrecio").on('input', function () {
     var index = $(".nuevoPrecio").index($(this));
     calcularPorcentaje(index);
     validarPrecio(index);
+    
+    var input = $(".nuevoPrecio").eq(index).val();
+    var nuevoValor = formatoPuntos(input);
+    $(".nuevoPrecio").eq(index).val(nuevoValor);
 });
 
 $(".nuevoCosto").on('input', function () {
     var index = $(".nuevoCosto").index($(this));
+        
     calcularPrecioFromCosto(index);
     calcularPorcentaje(index);
     validarCosto(index);
+    
+    var input = $(".nuevoCosto").eq(index).val();
+    var nuevoValor = formatoPuntos(input);
+    $(".nuevoCosto").eq(index).val(nuevoValor);
+
 });
 
 $(".porcentaje").on("ifUnchecked", function () {
@@ -162,18 +140,24 @@ function calcularPrecioFromCosto(index) {
     if ($(".porcentaje").eq(index).prop("checked")) {
 
         var valorPorcentaje = $(".nuevoPorcentaje").eq(index).val();
-        var porcentaje = Number(($(".nuevoCosto").eq(index).val() * valorPorcentaje / 100)) + Number($(".nuevoCosto").eq(index).val());
+        var valIn = $(".nuevoCosto").eq(index).val();
+        var costo = unformato(valIn);
 
-        $(".nuevoPrecio").eq(index).val(porcentaje.toFixed(0));
+        var precio = (costo * Number(valorPorcentaje) / 100) + costo;
+        var precioSinDecimal = (precio.toFixed(0)).toString();
+        var nuevoPrecio = formatoPuntos(precioSinDecimal);
+
+        $(".nuevoPrecio").eq(index).val(nuevoPrecio);
         $(".nuevoPrecio").eq(index).prop("readonly", true);
-
     }
 }
 
 function calcularPorcentaje(index) {
     if (!$(".porcentaje").eq(index).prop("checked")) {
-        var venta = $(".nuevoPrecio").eq(index).val();
-        var compra = $(".nuevoCosto").eq(index).val();
+        var ventaInput = $(".nuevoPrecio").eq(index).val();
+        var venta = unformato(ventaInput);
+        var compraInput = $(".nuevoCosto").eq(index).val();
+        var compra = unformato(compraInput);
 
         var nuevoPorcentaje = Number(((venta - compra) / compra) * 100);
         $(".nuevoPorcentaje").eq(index).val(nuevoPorcentaje.toFixed(0));
@@ -184,6 +168,9 @@ function calcularPorcentaje(index) {
  FUNCIONES CRUD PARA PRODUCTO
  =============================================*/
 function addProducto() {
+    
+    var costo = $(".nuevoCosto").eq(0).val();
+    var precio = $(".nuevoPrecio").eq(0).val();
 
     var params = {
         option: "prodAdd",
@@ -192,24 +179,26 @@ function addProducto() {
         descripcion: $(".nuevaDescripcion").eq(0).val(),
         cantidad: $(".nuevaCantidad").eq(0).val(),
         porcentaje: $(".nuevoPorcentaje").eq(0).val(),
-        costo: $(".nuevoCosto").eq(0).val(),
-        precio: $(".nuevoPrecio").eq(0).val()
+        costo: costo,
+        precio: precio
     };
+    showLoader("Creando producto");
 
     //Retorna un JSON con los atributos del nuevo producto creado
     //Parametro result (SUCCESS,ERROR, WARNING)
     $.get("/CtrProductos.do", params, function (response) {
 
         if (response.result === "success") {
-            alertBottomEnd("Producto creado con éxito!", response.result);
 
             listProductos.push(response); //agrega el nuevo producto al array
-            loadProductsTable(); //redibuja la tabla
+            loadProductsTable("Producto creado con éxito!"); //redibuja la tabla
 
             $("#modalAgregarProducto").modal('hide');
         } else if (response.result === "warning") {
+            closeLoader();
             alertBottomEnd("No se pudo crear el producto!", response.result);
         } else if (response.result === "error") {
+            closeLoader();
             alertBottomEnd("Ya existe un producto con ese nombre ó código!", response.result);
         }
     });
@@ -218,9 +207,12 @@ function addProducto() {
 function llenarInputsEditProducto(idProducto) {
     var id = Number(idProducto);
     var o = listProductos.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
-
-    $(".nuevoCosto").eq(1).val(o.costo);
-    $(".nuevoPrecio").eq(1).val(o.precio);
+    
+    var costo = formatoPuntos(o.costo.toString());
+    var precio = formatoPuntos(o.precio.toString());
+    
+    $(".nuevoCosto").eq(1).val(costo);
+    $(".nuevoPrecio").eq(1).val(precio);
     $(".nuevaDescripcion").eq(1).val(o.descripcion);
     $(".nuevoCodigo").eq(1).val(o.codigo);
     $(".nuevaCantidad").eq(1).val(o.existencia);
@@ -232,6 +224,9 @@ function llenarInputsEditProducto(idProducto) {
 
 function editProducto() {
     var idProducto = localStorage.getItem("idProductoToEdit");
+    
+    var costo = $(".nuevoCosto").eq(1).val();
+    var precio = $(".nuevoPrecio").eq(1).val();
 
     var params = {
         option: "prodEdit",
@@ -240,9 +235,10 @@ function editProducto() {
         descripcion: $(".nuevaDescripcion").eq(1).val(),
         cantidad: $(".nuevaCantidad").eq(1).val(),
         porcentaje: $(".nuevoPorcentaje").eq(1).val(),
-        costo: $(".nuevoCosto").eq(1).val(),
-        precio: $(".nuevoPrecio").eq(1).val()
+        costo: unformato(costo),
+        precio: unformato(precio)
     };
+    showLoader("Editando producto");
 
     //Retorna un JSON con los atributos del producto editado
     //Parametro result (SUCCESS,ERROR, WARNING)
@@ -250,20 +246,20 @@ function editProducto() {
         var indexPage = $('.tablaProductos').DataTable().page();
 
         if (response.result === "success") {
-            alertBottomEnd("Producto editado con éxito!", response.result);
-
             var id = Number(idProducto);
             var o = listProductos.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
             var index = listProductos.indexOf(o); //busca el indice del objeto en el array
 
-            listProductos[index] = response; //elimina el objeto del array  
-            loadProductsTable(); //redibuja la tabla
+            listProductos[index] = response; //agrega el objeto del array  
+            loadProductsTable("Producto editado con éxito!"); //redibuja la tabla
 
             $("#modalEditarProducto").modal('hide');
             localStorage.setItem("idProductoToEdit", "");
         } else if (response.result === "warning") {
+            closeLoader();
             alertBottomEnd("No se pudo editar el producto!", response.result);
         } else if (response.result === "error") {
+            closeLoader();
             alertBottomEnd("Ya existe un producto con ese nombre ó código!", response.result);
         }
 
@@ -279,6 +275,8 @@ function deleteProducto(idProducto) {
         idProducto: idProducto
     };
 
+    showLoader("Eliminando producto");
+
     $.get("/CtrProductos.do", params, function (response) {
         var indexPage = $('.tablaProductos').DataTable().page();
 
@@ -288,11 +286,12 @@ function deleteProducto(idProducto) {
             var index = listProductos.indexOf(o); //busca el indice del objeto en el array
             listProductos.splice(index, 1); //elimina el objeto del array
 
-            alertBottomEnd("Producto eliminado con éxito!", response.result);
-            loadProductsTable(); //redibuja la tabla
+            loadProductsTable("Producto eliminado con éxito!"); //redibuja la tabla
         } else if (response.result === "error") {
+            closeLoader();
             alertBottomEnd("El Producto tiene operaciones!", response.result);
         } else if (response.result === "warning") {
+            closeLoader();
             alertBottomEnd("No se pudo eliminar!", response.result);
         }
 
@@ -315,8 +314,9 @@ function loadProductos() {
 
     $.get("/CtrProductos.do", params, function (responseJson) {
         listProductos = responseJson;
+        localStorage.setItem("listProductos", listProductos);
         if ((window.location.href).includes("productos")) {
-            loadProductsTable();
+            loadProductsTable("");
         }
         if ((window.location.href).includes("venta")) {
             loadProductosVenta();
@@ -328,17 +328,9 @@ function loadProductos() {
     });
 }
 
-function loadProductsTable() {
-
-    var tabla = $(".tablaProductos").DataTable();
-    tabla.clear();
+function loadProductsTable(mensaje) {
 
     $.each(listProductos, function (index, p) {
-        //imagen producto
-        var imagenUrl = p.imagen;
-        if (imagenUrl === "")
-            imagenUrl = "img/productos/default/anonymous.png";
-//        var imagen = "<img src='" + imagenUrl + "' width='40px'>";
 
         //button stock
         var btnCantidad = "<button class='btn btn-danger'>" + p.existencia + "</button>";
@@ -346,25 +338,97 @@ function loadProductsTable() {
             btnCantidad = "<button class='btn btn-success'>" + p.existencia + "</button>";
 
         //buttons actions
-        var botones = "<div class='btn-group'><button class='btn btn-warning btnEditarProducto' idProducto='" + p.idProducto + "' data-toggle='modal' data-target='#modalEditarProducto'><i class='fa fa-pencil'></i></button>\n\
-                            <button class='btn btn-danger btnEliminarProducto' idProducto='" + p.idProducto + "' codigo='" + p.codigo + "' imagen='" + p.imagen + "'><i class='fa fa-times'></i></button></div>";
+        var botones = "<div class='btn-group'><button class='btn btn-warning btnEditarProducto' idProducto='" + p.idProducto + "' data-toggle='modal' data-producto-id='" + p.idProducto + "'  data-target='#modalEditarProducto'><i class='fa fa-pencil'></i></button>\n\
+                            <button class='btn btn-danger btnEliminarProducto' idProducto='" + p.idProducto + "' codigo='" + p.codigo + "'><i class='fa fa-times'></i></button></div>";
 
-        tabla.row.add([
-            p.codigo,
-            p.descripcion,
-            p.categoria,
-            btnCantidad,
-            p.costo.toLocaleString("de-DE"),
-            p.utilidad.toLocaleString("de-DE"),
-            p.precio.toLocaleString("de-DE"),
-//            p.fechaCreacion,
-            botones
-        ]).draw(false);
+        listProductos[index].btnCantidad = btnCantidad;
+        listProductos[index].botones = botones;
     });
-    tabla.order([2, 'asc']).draw();
+
+
+    $(".tablaProductos").DataTable().destroy();
+
+    $(".tablaProductos").DataTable({
+
+        data: listProductos,
+        columns: [
+            {data: 'codigo'},
+            {data: 'descripcion'},
+            {data: 'categoria'},
+            {data: 'btnCantidad'},
+            {data: 'costo',
+                render: $.fn.dataTable.render.number('.', ',', 0, '$')},
+            {data: 'utilidad',
+                render: $.fn.dataTable.render.number('.', ',', 0, '$')},
+            {data: 'precio',
+                render: $.fn.dataTable.render.number('.', ',', 0, '$')},
+            {data: 'botones'}
+        ],
+        order: [1, 'asc'],
+        "language": {
+//            "thousands": ",",
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+//            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+
+    /*=============================================
+     EVENTO EDITAR PRODUCTO
+     =============================================*/
+    $('#tablaProductos tbody').on('click', '.btnEditarProducto', function () {
+        var id = $(this).attr('idProducto');
+        loadCategoriasSelect(1); //1, select del modal editar
+        llenarInputsEditProducto(id);
+    });
+
+    /*=============================================
+     EVENTO ELIMINAR PRODUCTO
+     =============================================*/
+    $('#tablaProductos tbody').on('click', '.btnEliminarProducto', function () {
+
+        var idProducto = $(this).attr("idProducto");
+
+        Swal.fire({
+            title: '¿Está seguro de borrar el producto?',
+            text: "¡Si no lo está puede cancelar la accíón!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Si, borrar producto!'
+        }).then((result) => {
+            if (result.value)
+                deleteProducto(idProducto);
+        });
+    });
 
     setTimeout(() => {
         closeLoader();
+        if (mensaje != "") {
+            alertBottomEnd(mensaje, "success");
+        }
+
     }, 1000);
 
 }
@@ -495,15 +559,19 @@ function validarInputPrecio(index) {
     }
 }
 
-function calcularPrecioFromPorcentaje(o, index) {
+function calcularPrecioFromPorcentaje(o, index) {  
     if ($(".porcentaje").eq(index).prop("checked")) {
 
         var valorPorcentaje = o.val();
-        var porcentaje = Number(($(".nuevoCosto").eq(index).val() * valorPorcentaje / 100)) + Number($(".nuevoCosto").eq(index).val());
+        var valIn = $(".nuevoCosto").eq(index).val();
+        var costo = unformato(valIn);
+        
+        var precio = (costo * Number(valorPorcentaje) / 100) + costo;
+        var precioSinDecimal = (precio.toFixed(0)).toString();
+        var nuevoPrecio = formatoPuntos(precioSinDecimal);
 
-        $(".nuevoPrecio").eq(index).val(porcentaje.toFixed(0));
+        $(".nuevoPrecio").eq(index).val(nuevoPrecio);
         $(".nuevoPrecio").eq(index).prop("readonly", true);
-
     }
 }
 
@@ -535,14 +603,44 @@ function clearInputsModal() {
 
     $(".errorInputDescripcion").text('');
     $(".errorInputCantidad").text('');
-    $(".errorInputPrecio").text('');
+    $(".errorInputPrecio").eq(0).text('Desactiva Calcular para ingresar precio manualmente!');
+    $(".errorInputPrecio").eq(1).text('');
     $(".errorInputCosto").text('');
     $(".errorInputSelect").text('');
 
     $(".porcentaje").eq(1).prop("checked", false);
     $(".porcentaje").eq(1).parent().removeClass('checked');
 
-    $(".submit-prod").prop("disabled", true);
+    $(".submit-prod").prop("disabled", true);  
+    $(".nuevoPrecio").eq(0).prop("readonly", true);
+}
+
+function replaceAllP(text, busca, reemplaza) {
+    while (text.toString().indexOf(busca) != - 1)
+        text = text.toString().replace(busca, reemplaza);
+    return text;
+}
+
+function unformato(text) {
+    var numText = replaceAllP(text, ".", ""); //quita los puntos de miles
+    return Number(numText); //convierte en numero
+}
+
+function formato(text) {
+    var num = Number(text);
+    return num.toLocaleString("de-DE"); //le agrega el punto de miles    
+}
+
+
+function formatoPuntos(input){
+    var num = input.replace(/\./g, '');
+    if (!isNaN(num)) {
+        num = num.toString().split('').reverse().join('').replace(/(?=\d*\.?)(\d{3})/g, '$1.');
+        num = num.split('').reverse().join('').replace(/^[\.]/, '');
+        return num;
+    } else {
+        return input.replace(/[^\d\.]*/g, '');
+    }
 }
 
 

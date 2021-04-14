@@ -146,17 +146,19 @@ public class CtrVentas extends HttpServlet {
 
             for (Dventa dventa : listDv) {
 
-                //valores venta
-                float cantidadVenta = dventa.getDveCantidad();
+                //Edit stock si no es servicio
+                if (!dventa.getDveIddepartamento().getDpIsservice()) {
+                    //valores venta
+                    float cantidadVenta = dventa.getDveCantidad();
 
-                //valores stock
-                Stock stock = stockDao.findStock(dventa.getDveIdinventario().getInId());
-                float cantidadStock = stock.getStCantidad();
+                    //valores stock
+                    Stock stock = stockDao.findStock(dventa.getDveIdinventario().getInId());
+                    float cantidadStock = stock.getStCantidad();
 
-                //Edit stock
-                stock.setStCantidad(cantidadStock - cantidadVenta);
-                stockDao.edit(stock);
-
+                    //Edit stock
+                    stock.setStCantidad(cantidadStock - cantidadVenta);
+                    stockDao.edit(stock);
+                }
                 dventaDao.create(dventa);
             }
 
@@ -259,18 +261,18 @@ public class CtrVentas extends HttpServlet {
             List<Dventa> listDventa = venta.getDventaList();
 
             for (Dventa dventa : listDventa) {
-                Inventario inventario = dventa.getDveIdinventario();
-                float cantidadVenta = dventa.getDveCantidad();
+                //Edit Stock si no es servicio
+                if (!dventa.getDveIddepartamento().getDpIsservice()) {
+                    Inventario inventario = dventa.getDveIdinventario();
+                    float cantidadVenta = dventa.getDveCantidad();
 
-                Stock stock = inventario.getStock();
-                float cantidadStock = stock.getStCantidad();
-
-                //Edit Stock
-                stock.setStCantidad(cantidadStock + cantidadVenta);
-                stockDao.edit(stock);
-
-                //Edit inventario
-                inventario.setStock(stock);
+                    Stock stock = inventario.getStock();
+                    float cantidadStock = stock.getStCantidad();
+                    stock.setStCantidad(cantidadStock + cantidadVenta);
+                    stockDao.edit(stock);
+                    //Edit inventario
+                    inventario.setStock(stock);
+                }
             }
 
             ventaDao.destroy(idVenta);

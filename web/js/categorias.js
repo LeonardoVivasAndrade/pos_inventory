@@ -93,6 +93,8 @@ function deleteCategoria(idDepartamento) {
         idDepartamento: idDepartamento
     };
 
+    showLoader("Eliminando categoria");
+
     $.get("/CtrDepartamentos.do", params, function (response) {
         var indexPage = $('#tableCategorias').DataTable().page();
 
@@ -102,11 +104,12 @@ function deleteCategoria(idDepartamento) {
             var index = alistCategorias.indexOf(o); //busca el indice del objeto en el array
             alistCategorias.splice(index, 1); //elimina el objeto del array
 
-            alertBottomEnd("Categoria eliminada con éxito!", response);
-            loadCategoriaTable(); //redibuja la tabla
+            loadCategoriaTable("Categoria eliminada con éxito!"); //redibuja la tabla
         } else if (response === "error") {
+            closeLoader();
             alertBottomEnd("La categoria tiene productos!", response);
         } else if (response === "warning") {
+            closeLoader();
             alertBottomEnd("No se pudo eliminar!", response);
         }
 
@@ -125,23 +128,26 @@ function editCategoria() {
         idDepartamento: idDepartamento,
         descriptionDepartamento: descripcion
     };
-
+    
+    showLoader("Editando categoria");
     $.get("/CtrDepartamentos.do", params, function (response) {
         var indexPage = $('#tableCategorias').DataTable().page();
 
         if (response === "success") {
+            console.log(response);
             var id = Number(idDepartamento);
             var o = alistCategorias.find(result => result.idCategoria === id); //extra el objeto con el argumento idDepartamento
             var index = alistCategorias.indexOf(o); //busca el indice del objeto en el array
-            alistCategorias[index].descripcion = descripcion; //elimina el objeto del array
+            alistCategorias[index].descripcion = descripcion.toUpperCase(); //agrega descripcion al objeto del array
 
-            alertBottomEnd("Categoria modificada con éxito!", response);
-            loadCategoriaTable(); //redibuja la tabla
+            loadCategoriaTable("Categoria modificada con éxito!"); //redibuja la tabla
             $("#modalEditarCategoria").modal('hide');
         }
         if (response === "warning") {
+            closeLoader();
             alertBottomEnd("No se pudo modificar la categoria!", response);
         } else if (response === "error") {
+            closeLoader();
             alertBottomEnd("Ya existe una categoria con ese nombre!", response);
         }
 
@@ -159,18 +165,20 @@ function addCategoria() {
         option: "depAdd",
         descriptionDepartamento: descripcion
     };
-
+    
+    showLoader("Creando categoria");
     $.post("/CtrDepartamentos.do", params, function (response) {
 
         if (response.result === "success") {
-            alertBottomEnd("Categoria creada con éxito!", response.result);
 
             alistCategorias.push(response); //agrega el nuevo producto al array
-            loadCategoriaTable(); //redibuja la tabla        
+            loadCategoriaTable("Categoria creada con éxito!"); //redibuja la tabla        
             $("#modalAgregarCategoria").modal('hide');
         } else if (response.result === "warning") {
+            closeLoader();
             alertBottomEnd("No se pudo crear la categoria!", response.result);
         } else if (response.result === "error") {
+            closeLoader();
             alertBottomEnd("Ya existe una categoria con ese nombre!", response.result);
         }
 
@@ -196,14 +204,11 @@ function loadCategorias() {
     showLoader('Cargando Categorias');
     $.post("/CtrDepartamentos.do", params, function (responseJson) {
         alistCategorias = responseJson;
-        loadCategoriaTable();
-        setTimeout(() => {
-            closeLoader();
-        }, 1000);
+        loadCategoriaTable("");
     });
 }
 
-function loadCategoriaTable() {
+function loadCategoriaTable(mensaje) {
     var tabla = $("#tableCategorias").DataTable();
     tabla.clear();
 
@@ -221,4 +226,11 @@ function loadCategoriaTable() {
         ]).draw(false);
     });
     tabla.order([1, 'asc']).draw();
+
+    setTimeout(() => {
+        closeLoader();
+        if(mensaje != ""){
+            alertBottomEnd(mensaje, "success");
+        }        
+    }, 1000);
 }

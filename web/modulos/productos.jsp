@@ -127,7 +127,7 @@ MODAL AGREGAR PRODUCTO
 
                         <div class="col-xs-6" style="padding:0">
                             <div class="input-group">
-                                <input type="number" class="form-control input-lg nuevoPorcentaje" min="0" value="30" required>
+                                <input type="text" class="form-control input-lg nuevoPorcentaje" min="0" value="30" required>
                                 <span class="input-group-addon"><i class="fa fa-percent"></i></span>
                             </div>
                         </div>
@@ -142,7 +142,7 @@ MODAL AGREGAR PRODUCTO
                         <strong><p>Valor de compra</p></strong>
                         <div class="input-group">                                    
                             <span class="input-group-addon"><i class="fa fa-arrow-up"></i></span>                                     
-                            <input type="number" class="form-control input-lg nuevoCosto" step="any" min="0" placeholder="Costo compra" required>
+                            <input type="text" class="form-control input-lg nuevoCosto" step="any" min="0" placeholder="Costo compra" required>
                         </div>
                         <p style='color:red' class="errorInputCosto"></p>
                         <br>
@@ -151,9 +151,9 @@ MODAL AGREGAR PRODUCTO
                         <strong><p>Valor de venta</p></strong>
                         <div class="input-group">
                             <span class="input-group-addon"><i class="fa fa-arrow-down"></i></span> 
-                            <input type="number" class="form-control input-lg nuevoPrecio" step="any" min="0" placeholder="Precio de venta" required>
+                            <input type="text" class="form-control input-lg nuevoPrecio" step="any" min="0" placeholder="Precio de venta" readonly required>
                         </div>
-                        <p style="color:red;" class="errorInputPrecio"></p>
+                        <p style="color:red;" class="errorInputPrecio">Desactiva Calcular para ingresar precio manualmente!</p>
                         <br>
                     </div>
 
@@ -278,7 +278,7 @@ MODAL EDITAR PRODUCTO
                         <strong><p>Valor de compra</p></strong>
                         <div class="input-group">                                    
                             <span class="input-group-addon"><i class="fa fa-arrow-up"></i></span>                                     
-                            <input type="number" class="form-control input-lg nuevoCosto" step="any" min="0" placeholder="Costo compra" required>
+                            <input type="text" class="form-control input-lg nuevoCosto" step="any" min="0" placeholder="Costo compra" required>
                         </div>
                         <p style='color:red' class="errorInputCosto"></p>
                         <br>
@@ -287,7 +287,7 @@ MODAL EDITAR PRODUCTO
                         <strong><p>Valor de venta</p></strong>
                         <div class="input-group">
                             <span class="input-group-addon"><i class="fa fa-arrow-down"></i></span> 
-                            <input type="number" class="form-control input-lg nuevoPrecio" step="any" min="0" placeholder="Precio de venta" required>
+                            <input type="text" class="form-control input-lg nuevoPrecio" step="any" min="0" placeholder="Precio de venta" required>
                         </div>
                         <p style="color:red;" class="errorInputPrecio"></p>
                         <br>
