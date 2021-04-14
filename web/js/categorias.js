@@ -7,9 +7,10 @@ var alistCategorias;
 $(document).ready(function () {
 //    $("#box-widget").activateBox();
     //detectar si esta desde categorias
-    if ((window.location.href).includes("categorias")) {
-        $('#li-categorias').addClass('active');
+    if (window.location.pathname === "/categorias") {        
         loadCategorias();
+        $('li').removeClass('active');
+        $('#licategorias').addClass('active');
     }
 });
 

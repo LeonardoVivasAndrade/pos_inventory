@@ -3,7 +3,7 @@
     <section class="sidebar">
         <ul class="sidebar-menu">
             <!--si es administrador-->
-            <li class='li-sidebar'>
+            <li id="liinicio" class='li-sidebar'>
                 <a href="inicio">
                     <i class="fa fa-home"></i>
                     <span>Inicio</span>
@@ -11,21 +11,21 @@
             </li>
 
             <!--si es administrador o especial-->
-            <li  class='li-sidebar'>
+            <li id="licategorias" class='li-sidebar'>
                 <a href="categorias">
                     <i class="fa fa-th"></i>
                     <span>Categorías</span>
                 </a>
             </li>
 
-            <li  class='li-sidebar'>
+            <li id="liproductos" class='li-sidebar'>
                 <a href="productos">
                     <i class="fa fa-product-hunt"></i>
                     <span>Productos</span>
                 </a>
 
             </li>
-            <li  class='li-sidebar'>
+            <li id="licompra" class='li-sidebar'>
                 <a href="crear-compra">
                     <i class="fa fa-credit-card-alt"></i>
                     <span>Compra Mercancia</span>
@@ -33,7 +33,7 @@
 
             </li>
             <!--si es administrador o vendedor-->
-            <li  class='li-sidebar'>
+            <li id="liventa" class='li-sidebar'>
                 <a href="crear-venta">
                     <i class="fa fa-cart-plus"></i>
                     <span>Nueva Venta</span>
@@ -41,7 +41,7 @@
             </li>
 
             <!--si es administrador o vendedor-->
-            <li class="li-sidebar treeview">
+            <li id="lireportes" class="li-sidebar treeview">
                 <a href="#">
                     <i class="fa fa-list-ul"></i>
                     <span>Reportes</span>

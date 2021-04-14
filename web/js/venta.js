@@ -2,8 +2,10 @@ var listProductosVenta = [];
 
 $(document).ready(function () {
     //detectar si esta desde ventas
-    if ((window.location.href).includes("crear-venta")) {
+    if (window.location.pathname === "/crear-venta") {
         loadProductos();
+        $('li').removeClass('active');
+        $('#liventa').addClass('active');
     }
 });
 

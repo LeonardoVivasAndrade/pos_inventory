@@ -2,10 +2,12 @@
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
     
-    if ((window.location.href).includes("inicio")) {
+    if (window.location.pathname === "/inicio" || window.location.pathname === "/") {
         closeLoader();
         showLoader("Recopilando información");
         getWeeklySales();
+        $('li').removeClass('active');
+        $('#liinicio').addClass('active');
     }
 });
 

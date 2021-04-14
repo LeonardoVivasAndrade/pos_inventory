@@ -2,8 +2,10 @@ var listCompras = [];
 
 $(document).ready(function () {
     //detectar si esta desde ventas
-    if ((window.location.href).includes("compras")) {
+    if (window.location.pathname === "/compras") {
         loadCompras("", "", "default");
+        $('li').removeClass('active');
+        $('#lireportes').addClass('active');
     }
 });
 

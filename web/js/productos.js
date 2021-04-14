@@ -5,9 +5,11 @@ var listProductos = [];
 
 $(document).ready(function () {
     //detectar si esta desde productos
-    if ((window.location.href).includes("productos")) {
+    if (window.location.pathname === "/productos") {
         loadCategorias();
         loadProductos();
+        $('li').removeClass('active');
+        $('#liproductos').addClass('active');
     }
 });
 
@@ -179,8 +181,8 @@ function addProducto() {
         descripcion: $(".nuevaDescripcion").eq(0).val(),
         cantidad: $(".nuevaCantidad").eq(0).val(),
         porcentaje: $(".nuevoPorcentaje").eq(0).val(),
-        costo: costo,
-        precio: precio
+        costo: unformato(costo),
+        precio: unformato(precio)
     };
     showLoader("Creando producto");
 
@@ -608,6 +610,9 @@ function clearInputsModal() {
     $(".errorInputCosto").text('');
     $(".errorInputSelect").text('');
 
+    $(".porcentaje").eq(0).prop("checked", true);
+    $(".porcentaje").eq(0).parent().addClass('checked');
+    
     $(".porcentaje").eq(1).prop("checked", false);
     $(".porcentaje").eq(1).parent().removeClass('checked');
 

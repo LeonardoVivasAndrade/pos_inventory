@@ -2,8 +2,10 @@ var listVentas = [];
 
 $(document).ready(function () {
     //detectar si esta desde ventas
-    if ((window.location.href).includes("ventas")) {
+    if (window.location.pathname === "/ventas") {
         loadVentas("", "", "default");
+        $('li').removeClass('active');
+        $('#lireportes').addClass('active');
     }
 });
 

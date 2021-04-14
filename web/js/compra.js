@@ -2,8 +2,10 @@ var listProductosCompra = [];
 
 $(document).ready(function () {
     //detectar si esta desde compra
-    if ((window.location.href).includes("crear-compra")) {
+    if (window.location.pathname === "/crear-compra") {
         loadProductos();
+        $('li').removeClass('active');
+        $('#licompra').addClass('active');
     }
 });
 

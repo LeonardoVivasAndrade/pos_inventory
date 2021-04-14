@@ -24,7 +24,7 @@
         </div>
 
         <a href="#" class="small-box-footer">
-            Más info <i class="fa fa-arrow-circle-right"></i>
+             
         </a>
     </div>
 </div>
@@ -42,7 +42,7 @@
         </div>
 
         <a href="#" class="small-box-footer">
-            Más info <i class="fa fa-arrow-circle-right"></i>
+             
         </a>
     </div>
 </div>
@@ -62,7 +62,7 @@
         </div>
 
         <a href="#" class="small-box-footer">
-            Más info <i class="fa fa-arrow-circle-right"></i>
+             
         </a>
     </div>
 </div>
@@ -80,7 +80,7 @@
         </div>
 
         <a href="#" class="small-box-footer">
-            Más info <i class="fa fa-arrow-circle-right"></i>
+            
         </a>
     </div>
 </div>
