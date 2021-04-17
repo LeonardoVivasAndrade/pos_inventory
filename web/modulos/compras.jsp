@@ -23,12 +23,10 @@
             <section class="content">
                 <div class="box">
                     <div class="box-header with-border">  
-                        <a href="crear-compra">
-                            <button class="btn btn-primary">            
-                                Nueva Compra
-                            </button>
-                        </a>
-                        <button type="button" class="btn btn-default pull-right" id="daterange-btn">           
+                        <strong><h4 id='cantidadCompras'></h4></strong>
+                        <strong><h4 style='color: blue' id='totalCompras'></h4></strong>
+                        
+                        <button type="button" class="btn btn-default pull-right" id="daterange-btn2">           
                             <span>
                                 <i class="fa fa-calendar"></i> 
                                 Rango de fecha

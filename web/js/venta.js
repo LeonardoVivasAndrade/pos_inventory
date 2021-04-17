@@ -120,7 +120,7 @@ function loadProductosVenta() {
 
             //dibuja elementos del producto agregado a la venta
             $(".nuevoProducto").append(
-                    '<div class="row" style="padding:5px 15px">' +
+                    '<div class="row" style="padding-right:8px; padding-left:8px;">' +
                     '<!-- Descripción del producto -->' +
                     '<div class="col-xs-7" style="padding-right:0px">' +
                     '<div class="input-group">' +
@@ -129,8 +129,8 @@ function loadProductosVenta() {
                     '</div>' +
                     '</div>' +
                     '<!-- Cantidad del producto -->' +
-                    '<div class="col-xs-2">' +
-                    '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultVenta(this)" min="1" value="1" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+                    '<div class="col-xs-2" style="padding-right:0px; padding-left:0px">' +
+                    '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultVenta(this)" min="1" value="1" required>' +
                     '</div>' +
                     '<!-- Precio del producto -->' +
                     '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
@@ -140,7 +140,6 @@ function loadProductosVenta() {
                     '</div>' +
                     '</div>' +
                     '</div>');
-
 
             // SUMAR TOTAL DE PRECIOS
             sumarTotalPrecios();
@@ -379,9 +378,9 @@ function drawItemVenta(idProducto) {
         
         precio = precio.toLocaleString("de-DE");
 
-        //dibuja elementos del producto agregado a la venta
+        //dibuja elementos del producto agregado a la venta            
         $(".nuevoProducto").append(
-                '<div class="row" style="padding:5px 15px">' +
+                '<div class="row" style="padding-right:8px; padding-left:8px;">' +
                 '<!-- Descripción del producto -->' +
                 '<div class="col-xs-7" style="padding-right:0px">' +
                 '<div class="input-group">' +
@@ -390,13 +389,12 @@ function drawItemVenta(idProducto) {
                 '</div>' +
                 '</div>' +
                 '<!-- Cantidad del producto -->' +
-                '<div class="col-xs-2">' +
-                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultVenta(this)" min="1" value="' + cantidad + '" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+                '<div class="col-xs-2" style="padding-right:0px; padding-left:0px">' +
+                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultVenta(this)" min="1" value="' + cantidad + '" required>' +
                 '</div>' +
                 '<!-- Precio del producto -->' +
                 '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
                 '<div class="input-group">' +
-                '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
                 '<input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="' + precio + '" onblur="setPrecioDefault(this)" idProducto="' + idProducto + '" name="nuevoPrecioProducto" value="' + precio + '" required>' +
                 '</div>' +
                 '</div>' +

@@ -111,7 +111,7 @@ function loadProductosCompra() {
 
         //dibuja elementos del producto agregado a la compra
         $(".nuevoProducto").append(
-                '<div class="row" style="padding:5px 15px">' +
+                '<div class="row" style="padding-right:8px; padding-left:8px;">' +
                 '<!-- Descripción del producto -->' +
                 '<div class="col-xs-7" style="padding-right:0px">' +
                 '<div class="input-group">' +
@@ -120,13 +120,12 @@ function loadProductosCompra() {
                 '</div>' +
                 '</div>' +
                 '<!-- Cantidad del producto -->' +
-                '<div class="col-xs-2">' +
-                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultCompra(this)" min="1" value="1" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+                '<div class="col-xs-2" style="padding-right:0px; padding-left:0px">' +
+                '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultCompra(this)" min="1" value="1" required>' +
                 '</div>' +
                 '<!-- Precio del producto -->' +
                 '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
                 '<div class="input-group">' +
-                '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
                 '<input type="text" class="form-control nuevoCostoProducto" oninput="modificarCostoItem(this)" precioReal="' + costo + '" idProducto="' + idProducto + '" name="nuevoCostoProducto" value="' + costo + '" required>' +
                 '</div>' +
                 '</div>' +
@@ -320,7 +319,6 @@ function drawItemCompra(idProducto) {
 
     var descripcion = o.descripcion;
     var costo = o.costo;
-    var stock = o.existencia;
     var cantidad = o.cantidad;
 
 
@@ -329,7 +327,7 @@ function drawItemCompra(idProducto) {
 
     //dibuja elementos del producto agregado a la compra
     $(".nuevoProducto").append(
-            '<div class="row" style="padding:5px 15px">' +
+            '<div class="row" style="padding-right:8px; padding-left:8px;">' +
             '<!-- Descripción del producto -->' +
             '<div class="col-xs-7" style="padding-right:0px">' +
             '<div class="input-group">' +
@@ -338,13 +336,12 @@ function drawItemCompra(idProducto) {
             '</div>' +
             '</div>' +
             '<!-- Cantidad del producto -->' +
-            '<div class="col-xs-2">' +
-            '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultCompra(this)" min="1" value="' + cantidad + '" stock="' + stock + '" nuevoStock="' + Number(stock - 1) + '" required>' +
+            '<div class="col-xs-2" style="padding-right:0px; padding-left:0px">' +
+            '<input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItemCompra(this)" idProducto="' + idProducto + '" onblur="setCantidadDefaultCompra(this)" min="1" value="' + cantidad + '" required>' +
             '</div>' +
             '<!-- Precio del producto -->' +
             '<div class="col-xs-3 ingresoPrecio" style="padding-left:0px">' +
             '<div class="input-group">' +
-            '<span class="input-group-addon"><i class="ion ion-social-usd"></i></span>' +
             '<input type="text" class="form-control nuevoCostoProducto" oninput="modificarCostoItem(this)" precioReal="' + costo + '" onblur="setCostoDefault(this)" idProducto="' + idProducto + '" name="nuevoCostoProducto" value="' + costo + '" required>' +
             '</div>' +
             '</div>' +

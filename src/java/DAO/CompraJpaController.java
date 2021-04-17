@@ -319,4 +319,13 @@ public class CompraJpaController implements Serializable {
         }
     } 
     
+    public List<Compra> compraEntitesByDates(String start, String end){
+        EntityManager em = getEntityManager();
+        try {
+            return (List<Compra>) em.createNativeQuery("SELECT * FROM compra WHERE date(co_fechacompra) between '"+start+"' and '"+end+"'",Compra.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }
+    
 }

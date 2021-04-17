@@ -1,4 +1,3 @@
-
 package Controller;
 
 import DAO.CompraJpaController;
@@ -26,7 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CtrCompras extends HttpServlet {
-    
+
     protected EntityManagerFactory emf = new Conexion().getBd();
     protected final String SUCCESS = "success";
     protected final String ERROR_INTEGRITY = "error";
@@ -34,10 +33,9 @@ public class CtrCompras extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");        
+        response.setContentType("text/html;charset=UTF-8");
     }
 
-    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -63,15 +61,15 @@ public class CtrCompras extends HttpServlet {
                 }
 
                 break;
-            
-            case "getListCompras": 
+
+            case "getListCompras":
                 try {
                     Map<String, String[]> parameters = request.getParameterMap();
                     response.getWriter().write(getCompras(parameters).toString());
                 } catch (JSONException ex) {
                     Logger.getLogger(CtrVentas.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            break;
+                break;
             case "getDetalleCompra":
                 try {
                     String idC = request.getParameter("idCompra");
@@ -88,10 +86,9 @@ public class CtrCompras extends HttpServlet {
                 response.getWriter().write("{\"result\":\"" + delCompraReturn + "\"}");
                 break;
         }
-        
+
     }
 
-    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -100,9 +97,9 @@ public class CtrCompras extends HttpServlet {
 
         String newCodigo = numFacturaNext();
         resp.getWriter().write(newCodigo);
-        
+
     }
-    
+
     protected String addCompra(Compra compra, String productos) throws JSONException {
 
         try {
@@ -117,12 +114,12 @@ public class CtrCompras extends HttpServlet {
                 dcompraDao.create(dcompra);
                 Stock stock = stockDao.findStock(dcompra.getDcoIdinventario().getInId());
                 float cantidadActual = 0;
-                if( stock != null){
+                if (stock != null) {
                     cantidadActual = stock.getStCantidad();
                     float cantidadCompra = dcompra.getDcoCantidad();
                     stock.setStCantidad(cantidadActual + cantidadCompra);
-                }              
-                
+                }
+
                 stockDao.edit(stock);
             }
 
@@ -131,7 +128,7 @@ public class CtrCompras extends HttpServlet {
             return ERROR;
         }
     }
-    
+
     // formato de numero de factura inicia en (20001) 
     protected String numFacturaNext() {
         String prefijo = "2";
@@ -146,22 +143,20 @@ public class CtrCompras extends HttpServlet {
         }
 
     }
-    
+
     protected JSONArray getCompras(Map<String, String[]> parameters) throws JSONException {
         JSONArray jsonArray = new JSONArray();
 
         try {
-            String range = parameters.get("range")[0];
-            switch (range) {
-                case "default":
-                    CompraJpaController ventasDao = new CompraJpaController(emf);
-                    List<Compra> comprasList = ventasDao.findCompraEntities();
+            String start = parameters.get("start")[0];
+            String end = parameters.get("end")[0];
+            CompraJpaController compraDao = new CompraJpaController(emf);
 
-                    for (Compra compra : comprasList) {
-                        JSONObject o = Util.compraToJSON(compra);
-                        jsonArray.put(o);
-                    }
-                    break;
+            List<Compra> comprasList = compraDao.compraEntitesByDates(start, end);
+
+            for (Compra compra : comprasList) {
+                JSONObject o = Util.compraToJSON(compra);
+                jsonArray.put(o);
             }
 
         } catch (Exception e) {
@@ -169,11 +164,11 @@ public class CtrCompras extends HttpServlet {
 
         return jsonArray;
     }
-    
+
     protected JSONArray getDetalleCompra(String idCompra) throws JSONException {
         JSONArray jsonArray = new JSONArray();
 
-        CompraJpaController compraDao = new CompraJpaController(emf);        
+        CompraJpaController compraDao = new CompraJpaController(emf);
         Compra compra = compraDao.findCompra(Integer.valueOf(idCompra));
 
         for (Dcompra dcompra : compra.getDcompraList()) {
@@ -183,7 +178,7 @@ public class CtrCompras extends HttpServlet {
 
         return jsonArray;
     }
-    
+
     private String deleteCompra(int idCompra) {
         try {
             CompraJpaController compraDao = new CompraJpaController(emf);
@@ -206,7 +201,7 @@ public class CtrCompras extends HttpServlet {
                 stockDao.edit(stock);
 
                 //Edit inventario
-                inventario.setStock(stock);       
+                inventario.setStock(stock);
             }
 
             compraDao.destroy(idCompra);
@@ -217,7 +212,5 @@ public class CtrCompras extends HttpServlet {
         }
 
     }
-
-    
 
 }

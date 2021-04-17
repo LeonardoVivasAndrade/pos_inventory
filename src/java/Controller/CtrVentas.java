@@ -213,22 +213,20 @@ public class CtrVentas extends HttpServlet {
 
         return jsonArray;
     }
-
+    
     protected JSONArray getVentas(Map<String, String[]> parameters) throws JSONException {
         JSONArray jsonArray = new JSONArray();
 
         try {
-            String range = parameters.get("range")[0];
-            switch (range) {
-                case "default":
-                    VentaJpaController ventasDao = new VentaJpaController(emf);
-                    List<Venta> ventasList = ventasDao.findVentaEntities();
+            String start = parameters.get("start")[0];
+            String end = parameters.get("end")[0];
+            VentaJpaController ventasDao = new VentaJpaController(emf);
+            
+            List<Venta> ventasList = ventasDao.ventaEntitesByDates(start, end);
 
-                    for (Venta venta : ventasList) {
-                        JSONObject o = Util.ventaToJSON(venta);
-                        jsonArray.put(o);
-                    }
-                    break;
+            for (Venta venta : ventasList) {
+                JSONObject o = Util.ventaToJSON(venta);
+                jsonArray.put(o);
             }
 
         } catch (Exception e) {

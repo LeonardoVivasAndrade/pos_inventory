@@ -3,7 +3,7 @@ var listVentas = [];
 $(document).ready(function () {
     //detectar si esta desde ventas
     if (window.location.pathname === "/ventas") {
-        loadVentas("", "", "default");
+        loadVentas(moment().format('YYYY-MM-DD'), moment().format('YYYY-MM-DD'));
         $('li').removeClass('active');
         $('#lireportes').addClass('active');
     }
@@ -12,19 +12,20 @@ $(document).ready(function () {
 /*=============================================
  FUNCION CARGAR LISTA DE VENTAS
  =============================================*/
-function loadVentas(fecha1, fecha2, range) {
+function loadVentas(start, end) {
     var params = {
         option: "getListVentas",
-        range: range,
-        fechaStart: fecha1,
-        fechaEnd: fecha2
+        start: start,
+        end: end
     };
 
-//    showLoader('Cargando ventas');
+    showLoader('Cargando ventas');
 
     $.get("/CtrVentas.do", params, function (responseJson) {
         listVentas = responseJson;
         loadVentasTabla();
+    }).done(function () {
+        closeLoader();
     });
 }
 
@@ -35,29 +36,65 @@ function loadVentas(fecha1, fecha2, range) {
  =============================================*/
 
 function loadVentasTabla() {
-
-    var tabla = $(".tablaVentas").DataTable();
-    tabla.clear();
+    var cantidadVentas = 0;
+    var gananciaVentas = 0;
+    var totalVentas = 0;
+    
     $.each(listVentas, function (index, v) {
-        //buttons action view and delete
         var botones = '<div class="btn-group">\n\
                         <div class="tooltipnuevo"><button class="btn btn-primary btnVerVenta" data-toggle="modal" data-target="#modalDetalleVenta" data-toggle="tooltip" title="Ver Factura" numeroVenta="' + v.numero + '" idVenta="' + v.id + '"><i class="fa fa-eye"></i></button><span class="tooltiptext">Ver Factura</span></div>\n\
                         <div class="tooltipnuevo"><button class="btn btn-danger btnEliminarVenta" data-toggle="tooltip" title="Eliminar Factura"  idVenta="' + v.id + '"><i class="fa fa-times"></i></button><span class="tooltiptext">Anular Factura</span></div></div>';
 
-        tabla.row.add([
-            v.numero,
-            v.fecha,
-            v.cantidad,
-            v.utilidad.toLocaleString("de-DE"),
-            v.total.toLocaleString("de-DE"),
-            botones
-        ]).draw(false);
-
+        listVentas[index].botones = botones;
+        cantidadVentas += listVentas[index].cantidad;
+        gananciaVentas += listVentas[index].utilidad;
+        totalVentas += listVentas[index].total;
     });
-    tabla.order([0, 'desc']).draw();
+    
+    $("#cantidadVentas").text("Total artículos: " + cantidadVentas);
+    $("#gananciaVentas").text("Total Ganancia: $" + gananciaVentas.toLocaleString("de-DE"));
+    $("#totalVentas").text("Total Venta: $" + totalVentas.toLocaleString("de-DE"));
 
-//    setTimeout(() => {
-//    }, 1000);
+    $(".tablaVentas").DataTable().destroy();
+
+    $(".tablaVentas").DataTable({
+        data: listVentas,
+        columns: [
+            {data: 'numero'},
+            {data: 'fecha'},
+            {data: 'cantidad'},
+            {data: 'utilidad',
+                render: $.fn.dataTable.render.number( '.', ',', 0, '$' )},
+            {data: 'total',
+                render: $.fn.dataTable.render.number( '.', ',', 0, '$' )},            
+            {data: 'botones'}
+        ],
+        order: [0, 'desc'],
+        "language": {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
 }
 
 function deleteVenta(idVenta) {
@@ -134,11 +171,11 @@ $(".tablas").on("click", ".btnVerVenta", function () {
         var total = 0;
 
         $.each(listProd, function (index, p) {
-            
+
             var precio = new Intl.NumberFormat('de-DE').format(p.precio);
-            
+
             total += p.precio;
-           
+
 
             $(".productoDetalleVenta").append(
                     '<div class="row" style="padding:5px 15px">' +
@@ -162,9 +199,9 @@ $(".tablas").on("click", ".btnVerVenta", function () {
                     '</div>');
 
         });
-        
+
         var totalFormated = new Intl.NumberFormat('de-DE').format(total);
-        $(".productoDetalleVenta").append("<strong><h4>Total Venta: $ "+totalFormated+"</h4></strong>");
+        $(".productoDetalleVenta").append("<strong><h4>Total Venta: $ " + totalFormated + "</h4></strong>");
     });
 });
 
@@ -178,8 +215,8 @@ $('#daterange-btn').daterangepicker(
             ranges: {
                 'Hoy': [moment(), moment()],
                 'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                'Últimos 7 días': [moment().subtract(6, 'days'), moment()],
-                'Últimos 30 días': [moment().subtract(29, 'days'), moment()],
+                'Esta Semana': [moment().startOf('week').subtract(-1, 'days'), moment().endOf('week').subtract(-1, 'days')],
+                'Últimos 15 días': [moment().subtract(14, 'days'), moment()],
                 'Este mes': [moment().startOf('month'), moment().endOf('month')]
             },
             startDate: moment(),
@@ -190,76 +227,7 @@ $('#daterange-btn').daterangepicker(
 
             var fechaInicial = start.format('YYYY-MM-DD');
             var fechaFinal = end.format('YYYY-MM-DD');
-            var capturarRango = $("#daterange-btn span").html();
-            localStorage.setItem("capturarRango", capturarRango);
-//            window.location = "index.php?ruta=ventas&fechaInicial=" + fechaInicial + "&fechaFinal=" + fechaFinal;
 
+            loadVentas(fechaInicial, fechaFinal);
         }
-
 )
-
-/*=============================================
- CANCELAR RANGO DE FECHAS
- =============================================*/
-
-$(".daterangepicker.opensleft .range_inputs .cancelBtn").on("click", function () {
-
-    localStorage.removeItem("capturarRango");
-    localStorage.clear();
-    window.location = "ventas";
-})
-
-/*=============================================
- CAPTURAR HOY
- =============================================*/
-
-$(".daterangepicker.opensleft .ranges li").on("click", function () {
-
-    var textoHoy = $(this).attr("data-range-key");
-
-    if (textoHoy == "Hoy") {
-
-        var d = new Date();
-
-        var dia = d.getDate();
-        var mes = d.getMonth() + 1;
-        var año = d.getFullYear();
-
-        // if(mes < 10){
-
-        // 	var fechaInicial = año+"-0"+mes+"-"+dia;
-        // 	var fechaFinal = año+"-0"+mes+"-"+dia;
-
-        // }else if(dia < 10){
-
-        // 	var fechaInicial = año+"-"+mes+"-0"+dia;
-        // 	var fechaFinal = año+"-"+mes+"-0"+dia;
-
-        // }else if(mes < 10 && dia < 10){
-
-        // 	var fechaInicial = año+"-0"+mes+"-0"+dia;
-        // 	var fechaFinal = año+"-0"+mes+"-0"+dia;
-
-        // }else{
-
-        // 	var fechaInicial = año+"-"+mes+"-"+dia;
-        //    	var fechaFinal = año+"-"+mes+"-"+dia;
-
-        // }
-
-        dia = ("0" + dia).slice(-2);
-        mes = ("0" + mes).slice(-2);
-
-        var fechaInicial = año + "-" + mes + "-" + dia;
-        var fechaFinal = año + "-" + mes + "-" + dia;
-
-        localStorage.setItem("capturarRango", "Hoy");
-
-//        window.location = "index.php?ruta=ventas&fechaInicial=" + fechaInicial + "&fechaFinal=" + fechaFinal;
-
-    }
-
-})
-
-
-

@@ -189,8 +189,8 @@ public class Util {
         float total = venta.getVePreciototal();
         float utilidad = total-costo;
         
-        documento.put("utilidad", floatFormat(utilidad));
-        documento.put("total", floatFormat(total));
+        documento.put("utilidad", utilidad);
+        documento.put("total", total);
         return documento;
     }
     
@@ -205,7 +205,7 @@ public class Util {
         
         float total = compra.getCoCostototal();
         
-        documento.put("total", floatFormat(total));
+        documento.put("total", total);
         return documento;
     }
     
@@ -311,6 +311,16 @@ public class Util {
     public static LocalDate getFirstDayOfWeek() {
         LocalDate ld = LocalDate.now();        
         return ld.with(DayOfWeek.MONDAY);
+    }
+    
+    public static LocalDate getFirstDayOfMonth() {
+        LocalDate ld = LocalDate.now();        
+        return ld.withDayOfMonth(1);
+    }
+    
+    public static LocalDate getLastDayOfMonth() {
+        LocalDate ld = LocalDate.now();        
+        return ld.withDayOfMonth(ld.lengthOfMonth());
     }
 
     /**

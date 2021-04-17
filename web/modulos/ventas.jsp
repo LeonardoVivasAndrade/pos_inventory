@@ -14,7 +14,7 @@
                 </ol>
             </section>
         </div>
-    </div>
+    </div>    
     <div class="row">
         <div class="col-md-1">
 
@@ -22,13 +22,12 @@
         <div class="col-md-10">
             <section class="content">
                 <div class="box">
-                    <div class="box-header with-border">  
-                        <a href="crear-venta">
-                            <button class="btn btn-primary">            
-                                Nueva Venta
-                            </button>
-                        </a>
-                        <button type="button" class="btn btn-default pull-right" id="daterange-btn">           
+                    <div class="box-header with-border"> 
+                        <strong><h4 id='cantidadVentas'></h4></strong>
+                        <strong><h4 style='color: #00bd00' id='gananciaVentas'></h4></strong>
+                        <strong><h4 style='color: blue' id='totalVentas'></h4></strong>
+                        
+                        <button type="button" class="btn btn-default pull-right" id="daterange-btn">                              
                             <span>
                                 <i class="fa fa-calendar"></i> 
                                 Rango de fecha

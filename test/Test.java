@@ -40,7 +40,7 @@ public class Test {
      */
     public static void main(String[] args) throws JSONException, NonexistentEntityException, Exception {
 
-//        EntityManagerFactory emf = new Conexion().getBd();
+        EntityManagerFactory emf = new Conexion().getBd();
 //        DventaJpaController dventaDao = new DventaJpaController(emf);
 //        Object dventaList = dventaDao.getBestProducts2();
 //        List<Object[]> a = (List<Object[]>) dventaList;
@@ -52,24 +52,28 @@ public class Test {
 //        Date d = new Date();
 //        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MMM-dd");
 //        System.out.println(formato.format(d));
-        
-
-        
-        
 //        DecimalFormat df = new DecimalFormat("###,###");
 //        System.out.println(df.format(3.855));
+//        LocalDate monday = Util.getFirstDayOfWeek();
+//        LocalDate sunday = monday.minusDays(15);
 
-//LocalDate miercoles = lunes.with(DayOfWeek.WEDNESDAY);
-//LocalDate jueves = lunes.plusDays(1);
-//System.out.println(lunes);
+        LocalDate ld = LocalDate.now();
+LocalDate sunday = ld.minusDays(14);
+//        LocalDate initial = LocalDate.now();
+//        LocalDate start = initial.withDayOfMonth(1);
+//        LocalDate end = initial.withDayOfMonth(initial.lengthOfMonth());
 
+        System.out.println(sunday);
 
 //        EntityManagerFactory emf = new Conexion().getBd();
 //        VentaJpaController ventaDao = new VentaJpaController(emf);
-//        Double sumaVentaTotal = ventaDao.getSumVentaTotal();
-//        System.out.println();
-        // TODO code application logic here
-        System.out.println(Util.doubleFormat(5000000.50));
+////        Double sumaVentaTotal = ventaDao.getSumVentaTotal();
+////        System.out.println();
+//        // TODO code application logic here
+//        
+//        Date d = new Date();
+//        
+//        System.out.println(Util.dateToString2(d));
     }
 
 }

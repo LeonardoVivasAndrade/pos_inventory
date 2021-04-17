@@ -338,4 +338,12 @@ public class VentaJpaController implements Serializable {
         }
     }
     
+    public List<Venta> ventaEntitesByDates(String start, String end){
+        EntityManager em = getEntityManager();
+        try {
+            return (List<Venta>) em.createNativeQuery("SELECT * FROM venta WHERE date(ve_fechaventa) between '"+start+"' and '"+end+"'",Venta.class).getResultList();
+        } finally {
+            em.close();
+        }
+    }  
 }

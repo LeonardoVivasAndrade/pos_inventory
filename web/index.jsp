@@ -5,10 +5,10 @@
 --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
-<%  
+<%
     if(request.getSession().getAttribute("user") == null)
         response.sendRedirect("login");
-    
+
 %>
 <!DOCTYPE html>
 <html>
@@ -54,7 +54,7 @@
 
         <!-- Morris chart -->
         <link rel="stylesheet" href="bower_components/morris.js/morris.css">
-        
+
         <!-- Tooltip costumer-->
         <link rel="stylesheet" href="dist/css/tooltip.css">
 
@@ -109,7 +109,7 @@
         <!-- ChartJS http://www.chartjs.org/-->
         <script src="bower_components/chart.js/Chart.min.js"></script>
         <!--<script src="https://raw.githack.com/chartjs/Chart.js/v1.1.1/Chart.min.js"></script>-->
-        
+
     </head>
 
     <!--=====================================
@@ -131,8 +131,7 @@
             <!--============================================
                 CONTENT
             =============================================-->
-            <%
-                String ruta = request.getServletPath();
+            <%                String ruta = request.getServletPath();
 
                 if (ruta.equals("/categorias")) {%>
             <%@include file="modulos/categorias.jsp" %>
@@ -171,6 +170,27 @@
         <script src="js/compra.js"></script>
         <script src="js/compras.js"></script>
         <!--<script src="js/reportes.js"></script>-->
+
+<!--        <div class="row" style="padding:5px 15px"> 
+             Descripción del producto  
+            <div class="col-xs-7" style="padding-right:0px"> 
+                <div class="input-group"> 
+                    <span class="input-group-addon input-sm"><button type="button" onclick="borrarProductoVenta(this)" class="btn btn-danger btn-xs" idProducto="  idProducto  "><i class="fa fa-times"></i></button></span> 
+                    <input type="text" class="form-control nuevaDescripcionProducto" name="agregarProducto" value="  descripcion  " readonly required> 
+                </div> 
+            </div> 
+             Cantidad del producto  
+            <div class="col-xs-2"> 
+                <input type="number" class="form-control nuevaCantidadProducto" oninput="modificarCantidadItem(this)" idProducto="  idProducto  " onblur="setCantidadDefaultVenta(this)" min="1" value="1" stock="  stock  " nuevoStock="  Number(stock - 1)  " required> 
+            </div> 
+             Precio del producto  
+            <div class="col-xs-3 ingresoPrecio" style="padding-left:0px"> 
+                <div class="input-group"> 
+                    <span class="input-group-addon"><i class="ion ion-social-usd"></i></span> 
+                    <input type="text" class="form-control nuevoPrecioProducto" oninput="modificarPrecioItem(this)" precioReal="  precio  " idProducto="  idProducto  " name="nuevoPrecioProducto" value="  precio  " required> 
+                </div> 
+            </div> 
+        </div>-->
 
     </body>
 </html>
