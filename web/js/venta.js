@@ -351,14 +351,15 @@ function mostrarProductosPendientesVenta() {
     listProductosVenta = JSON.parse(tmpListVentaJSON);
 
     $.each(listProductosVenta, function (index, p) {
-        var btnSave = $("button.recuperarBoton[idProducto='" + p.idProducto + "']");
-        drawItemVenta(btnSave);
+//        var btnSave = $("button.recuperarBoton[idProducto='" + p.idProducto + "']"); //no funciona porque no recupera boton de una pagina de la tabla no pintada
+        var id = p.idProducto;
+        drawItemVenta(id);
     });
     $("#btnTotalizar").prop("disabled", false);
 }
 
-function drawItemVenta(e) {
-    var idProducto = $(e).attr("idProducto");
+function drawItemVenta(idProducto) {
+//    var idProducto = $(e).attr("idProducto");
     //busca el objeto producto
     var id = Number(idProducto);
     var o = listProductosVenta.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
@@ -373,8 +374,8 @@ function drawItemVenta(e) {
         alertBottomEnd('Algunos productos faltaron por falta de existencia!', 'error');
         return;
     } else {
-        $(e).removeClass("btn-primary agregarProducto");
-        $(e).addClass("btn-default");
+//        $(e).removeClass("btn-primary agregarProducto");
+//        $(e).addClass("btn-default");
         
         precio = precio.toLocaleString("de-DE");
 

@@ -184,7 +184,7 @@ function addCategoria() {
         }
 
         //detectar si esta desde categorias o productos
-        if ((window.location.href).includes("productos")) {
+        if (window.location.pathname === "/productos") {
             loadCategoriasSelect();
             var selectCategorias = $(".nuevaCategoriaSelect");
             selectCategorias.val(descripcion.toUpperCase());

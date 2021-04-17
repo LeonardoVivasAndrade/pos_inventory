@@ -317,13 +317,13 @@ function loadProductos() {
     $.get("/CtrProductos.do", params, function (responseJson) {
         listProductos = responseJson;
         localStorage.setItem("listProductos", listProductos);
-        if ((window.location.href).includes("productos")) {
+        if (window.location.pathname === "/productos") {
             loadProductsTable("");
         }
-        if ((window.location.href).includes("venta")) {
+        if (window.location.pathname === "/crear-venta") {
             loadProductosVenta();
         }
-        if ((window.location.href).includes("compra")) {
+        if (window.location.pathname === "/crear-compra") {
             loadProductosCompra();
         }
 

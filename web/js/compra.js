@@ -305,14 +305,15 @@ function mostrarProductosPendientesCompra() {
     listProductosCompra = JSON.parse(tmpListCompraJSON);
 
     $.each(listProductosCompra, function (index, p) {
-        var btnSave = $("button.recuperarBoton[idProducto='" + p.idProducto + "']");
-        drawItemCompra(btnSave);
+//        var btnSave = $("button.recuperarBoton[idProducto='" + p.idProducto + "']"); //no funciona porque no recupera boton de una pagina de la tabla no pintada
+        var id = p.idProducto;
+        drawItemCompra(id);
     });
     $("#btnTotalizar").prop("disabled", false);
 }
 
-function drawItemCompra(e) {
-    var idProducto = $(e).attr("idProducto");
+function drawItemCompra(idProducto) {
+//    var idProducto = $(e).attr("idProducto");
     //busca el objeto producto
     var id = Number(idProducto);
     var o = listProductosCompra.find(result => result.idProducto === id); //extrae el objeto con el argumento idProducto
@@ -323,8 +324,8 @@ function drawItemCompra(e) {
     var cantidad = o.cantidad;
 
 
-    $(e).removeClass("btn-danger agregarProducto");
-    $(e).addClass("btn-default");
+//    $(e).removeClass("btn-danger agregarProducto");
+//    $(e).addClass("btn-default");
 
     //dibuja elementos del producto agregado a la compra
     $(".nuevoProducto").append(
